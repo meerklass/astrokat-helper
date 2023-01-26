@@ -1,0 +1,46 @@
+durations:
+  start_time: 2023-01-20 21:25:00     # This is the start time so that you can test these on using astrokat
+#  start_time: 2023-01-20 22:33:00     # This is the start time so that you can test these on using astrokat
+instrument:
+  integration_time: 2
+# set noise diode pattern to fire every 20 seconds and only be on for 0.6s
+
+noise_diode:
+  antennas: all
+  cycle_len: 19.5   # The maximum time a is 20 seconds
+  on_frac: 0.030    # the time  the noise diode is on =  cycle_len* on_frac
+  lead_time: 12.   #  do not change
+
+scan:
+  # achieving a scan speed of 8.0 arcmin/sec on sky.
+  scan_speed: 7.0
+  direction: 0  #  do not change
+  radec_p1: 10:42:52.80, -08:50:60.00  # Note the comma separation.
+  radec_p2: 11:38:02.40, -08:50:60.00  # Note the comma separation.
+  radec_p3: 11:38:02.40, 05:27:00.00  # Note the comma separation.
+  radec_p4: 10:42:52.80, 05:27:00.00  # Note the comma separation.
+  projection: plate-carree  #  do not change
+
+horizon: 15
+observation_loop:
+  - LST:  6:50-07:59   # The valid range when this observation can be started. This includes the calibration parts.
+    target_list:
+      - name=J1058+0133, radec= 10:58:29.61 1:33:58.8, tags=gaincal, duration=120
+      - name=PictorA_u0.8,  radec= 5:19:49.721 -44:58:43.8,     tags=target, type=track, duration=70.0
+      - name=PictorA,       radec= 5:19:49.721 -45:46:43.7801, tags=target, type=track, duration=70.0
+      - name=PictorA_d0.8,  radec= 5:19:49.721 -46:34:43.8,     tags=target, type=track, duration=70.0
+      - name=PictorA,       radec= 5:19:49.721 -45:46:43.7801, tags=target, type=track, duration=70.0
+      - name=PictorA_r0.8,  radec= 5:24:24.999 -45:46:23.1211, tags=target, type=track, duration=70.0
+      - name=PictorA,       radec= 5:19:49.721 -45:46:43.7801, tags=target, type=track, duration=70.0
+      - name=PictorA_l0.8,  radec= 5:15:14.443 -45:46:23.1211, tags=target, type=track, duration=70.0
+      - name=scan_azel_with_nd_trigger, radec= 11:10:27.60 -01:42:00.00, duration=0, tags=target, type=reversescan
+      - name=PictorA_u0.8,  radec= 5:19:49.721 -44:58:43.8,     tags=target, type=track, duration=70.0
+      - name=PictorA,       radec= 5:19:49.721 -45:46:43.7801, tags=target, type=track, duration=70.0
+      - name=PictorA_d0.8,  radec= 5:19:49.721 -46:34:43.8,     tags=target, type=track, duration=70.0
+      - name=PictorA,       radec= 5:19:49.721 -45:46:43.7801, tags=target, type=track, duration=70.0
+      - name=PictorA_r0.8,  radec= 5:24:24.999 -45:46:23.1211, tags=target, type=track, duration=70.0
+      - name=PictorA,       radec= 5:19:49.721 -45:46:43.7801, tags=target, type=track, duration=70.0
+      - name=PictorA_l0.8,  radec= 5:15:14.443 -45:46:23.1211, tags=target, type=track, duration=70.0
+      - name=J1058+0133, radec= 10:58:29.61 1:33:58.8, tags=gaincal, duration=120
+      - name=J0408-6545 | 0408-658, radec=04:08:20.3782 -65:45:09.080, tags=fluxcal bpcal delaycal, duration=300
+      - name=J1130-1449 | 1127-145, radec=11:30:07.05 -14:49:27.4, tags=polcal, duration=300  # once per night
