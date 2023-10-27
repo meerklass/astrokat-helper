@@ -1,4 +1,7 @@
 import re
+
+import cv2
+import scipy.ndimage
 import sys
 from datetime import timedelta
 
@@ -11,6 +14,9 @@ from astropy.time import Time
 from katpoint import Antenna
 from matplotlib import pyplot as plt
 
+from museek.data_element import DataElement
+from museek.time_ordered_data_mapper import TimeOrderedDataMapper
+
 MEERKAT_REFERENCE_LOCATION = "ref, -30:42:39.8, 21:26:38.0, 1035.0, 0.0, , , 1.15"
 
 
@@ -19,6 +25,9 @@ def get_tod_from_simulation_output(simulation_output: list[str], reference_anten
     first_time = True
     ra = []
     dec = []
+    duration = None
+    scan_extent_a = None
+    scan_extent_b = None
     for line_ in simulation_output:
         # print(line_)
         if "Scan duration is" in line_:
@@ -26,10 +35,10 @@ def get_tod_from_simulation_output(simulation_output: list[str], reference_anten
         elif 'Azimuth scan extent ' in line_:
             extent_str = line_.split('extent ')[1][:-1]
             scan_extent_a, scan_extent_b = np.asarray(extent_str.strip('[').strip(']').split(', '), float)
-        elif 'Slewed to scan_azel_with_nd_trigger' in line_:
-            if first_time:
-                first_time = False
-                continue
+        elif 'Slewed to scan_azel_with_nd_trigger' in line_ and duration and scan_extent_a and scan_extent_b:
+            # if first_time:
+            #     first_time = False
+            #     continue
             time_ = line_.split(' - ')[0]
             azel_str = line_.split('azel ')[1][:-5]
             az, el = np.asarray(azel_str.strip('[(').strip(')]').split(', '), float)
@@ -104,6 +113,10 @@ def main(output_file_paths: list[str],
     # end_time = '2023-01-20 04:00:00'
     # print(ref_antenna.local_sidereal_time(timestamp=start_time))
     # print(ref_antenna.local_sidereal_time(timestamp=end_time))
+    all_ra = []
+    all_dec = []
+    all_to_map = []
+    map_value = 1
 
     for output_file_path, label in zip(output_file_paths, labels):
         with open(output_file_path, 'r') as output_file:
@@ -111,6 +124,10 @@ def main(output_file_paths: list[str],
                                                      reference_antenna=ref_antenna)
         # plt.scatter(ra[0], dec[0], color='blue', marker='o')
         plt.plot(ra, dec, label=label)
+        all_ra.extend(ra)
+        all_dec.extend(dec)
+        all_to_map.extend([map_value for _ in ra])
+        map_value += 1
 
     for corners, corner_color in zip([desi_1_rising_corners,
                                       desi_1_setting_corners,
@@ -129,10 +146,44 @@ def main(output_file_paths: list[str],
     plt.legend()
     plt.show()
 
+    right_ascension = DataElement(array=np.asarray(all_ra)[:, np.newaxis, np.newaxis])
+    declination = DataElement(array=np.asarray(all_dec)[:, np.newaxis, np.newaxis])
+    to_map = DataElement(array=np.asarray(all_to_map)[:, np.newaxis, np.newaxis])
+    maps, _ = TimeOrderedDataMapper(right_ascension=right_ascension,
+                                    declination=declination,
+                                    to_map=to_map).grid(grid_size=(60, 60), method='nearest')
+    maps = maps[0]
+    convolution_kernel = np.array([[1, 1, 1],
+                                   [1, 1, 1],
+                                   [1, 1, 1]])/9
+    filtered = cv2.filter2D(np.asarray(maps, float), -1, convolution_kernel)
+    mask = np.ones_like(maps)
+    mask[abs(maps-filtered)<1e-3] = 0
+    mask = scipy.ndimage.binary_closing(mask)
+    mask = scipy.ndimage.binary_erosion(mask, iterations=2)
+    mask = scipy.ndimage.binary_dilation(mask, iterations=2)
+
+    ra_range = max(right_ascension) - min(right_ascension)
+    dec_range = max(declination) - min(declination)
+    area_per_pixel = ra_range * dec_range / 60**2
+
+    mask_area = area_per_pixel * np.sum(mask)
+    print(f'the mask area is {mask_area} square degrees.')
+
+    plt.imshow(mask*maps)
+    plt.show()
+
+
+
 
 if __name__ == '__main__':
-    main(['/home/amadeus/git/astrokat-helper/output/desi_1_rising_observe.txt',
-          '/home/amadeus/git/astrokat-helper/output/desi_1_setting_observe.txt',
-          '/home/amadeus/git/astrokat-helper/output/desi_2_rising_observe.txt',
-          '/home/amadeus/git/astrokat-helper/output/desi_2_setting_observe.txt'],
-         ['desi 1 rising', 'desi 1 setting', 'desi 2 rising', 'desi 2 setting'])
+    # main(['/home/amadeus/git/astrokat-helper/output/desi_1_rising_observe.txt',
+    #       '/home/amadeus/git/astrokat-helper/output/desi_1_setting_observe.txt',
+    #       '/home/amadeus/git/astrokat-helper/output/desi_2_rising_observe.txt',
+    #       '/home/amadeus/git/astrokat-helper/output/desi_2_setting_observe.txt'],
+    #      ['desi 1 rising', 'desi 1 setting', 'desi 2 rising', 'desi 2 setting'])
+    main(['/home/amadeus/git/astrokat-helper/output/desi_2_rising_no_initial_calibrators_observe.txt'],
+         ['desi 2 rising no initial calibrators'])
+    # main(['/home/amadeus/git/astrokat-helper/output/desi_2_rising_observe.txt',
+    #       '/home/amadeus/git/astrokat-helper/output/desi_2_setting_observe.txt'],
+    #      ['desi 2 rising', 'desi 2 setting'])

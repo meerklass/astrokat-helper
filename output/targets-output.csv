@@ -1,0 +1,8 @@
+# Observation catalogue for proposal ID None
+# PI: None
+# Contact details: None
+J0521+1638 | 3C138, radec polcal, 5:21:09.89, 16:38:22.1, (50.0 50000.0 1.3781 0.1619 -0.065 -0.01)
+J1058+0133 | 1055+018, radec gaincal, 10:58:29.61, 1:33:58.8
+J1130-1449 | 1127-145, radec polcal, 11:30:07.05, -14:49:27.4
+J1331+3030 | 3C286, radec bpcal fluxcal, 13:31:08.29, 30:30:33.0, (50.0 50000.0 0.0181 1.592 -0.5011 0.0357)
+scan_azel_with_nd_trigger, radec target, 10:47:57.60, 5:32:24.0
