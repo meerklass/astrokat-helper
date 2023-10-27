@@ -1,6 +1,6 @@
 durations:
-#  start_time: 2023-01-20 21:25:00     # This is the start time so that you can test these on using astrokat
-  start_time: 2023-01-20 22:33:00     # This is the start time so that you can test these on using astrokat
+  start_time: 2023-01-20 21:37:00     # This is the start time so that you can test these on using astrokat
+#  start_time: 2023-01-20 22:46:00     # This is the start time so that you can test these on using astrokat
 instrument:
   integration_time: 2
 # set noise diode pattern to fire every 20 seconds and only be on for 0.6s
@@ -23,16 +23,8 @@ scan:
 
 horizon: 15
 observation_loop:
-  - LST:  6:50-07:59   # The valid range when this observation can be started. This includes the calibration parts.
+  - LST:  7:02-08:12   # The valid range when this observation can be started. This includes the calibration parts.
     target_list:
-      - name=J1058+0133, radec= 10:58:29.61 1:33:58.8, tags=gaincal, duration=120
-      - name=PictorA_u0.8,  radec= 5:19:49.721 -44:58:43.8,     tags=target, type=track, duration=70.0
-      - name=PictorA,       radec= 5:19:49.721 -45:46:43.7801, tags=target, type=track, duration=70.0
-      - name=PictorA_d0.8,  radec= 5:19:49.721 -46:34:43.8,     tags=target, type=track, duration=70.0
-      - name=PictorA,       radec= 5:19:49.721 -45:46:43.7801, tags=target, type=track, duration=70.0
-      - name=PictorA_r0.8,  radec= 5:24:24.999 -45:46:23.1211, tags=target, type=track, duration=70.0
-      - name=PictorA,       radec= 5:19:49.721 -45:46:43.7801, tags=target, type=track, duration=70.0
-      - name=PictorA_l0.8,  radec= 5:15:14.443 -45:46:23.1211, tags=target, type=track, duration=70.0
       - name=scan_azel_with_nd_trigger, radec= 11:08:27.6 -01:42:00.0, duration=0, tags=target, type=reversescan
       - name=PictorA_u0.8,  radec= 5:19:49.721 -44:58:43.8,     tags=target, type=track, duration=70.0
       - name=PictorA,       radec= 5:19:49.721 -45:46:43.7801, tags=target, type=track, duration=70.0
@@ -42,5 +34,3 @@ observation_loop:
       - name=PictorA,       radec= 5:19:49.721 -45:46:43.7801, tags=target, type=track, duration=70.0
       - name=PictorA_l0.8,  radec= 5:15:14.443 -45:46:23.1211, tags=target, type=track, duration=70.0
       - name=J1058+0133, radec= 10:58:29.61 1:33:58.8, tags=gaincal, duration=120
-      - name=J0408-6545 | 0408-658, radec=04:08:20.3782 -65:45:09.080, tags=fluxcal bpcal delaycal, duration=300
-      - name=J1130-1449 | 1127-145, radec=11:30:07.05 -14:49:27.4, tags=polcal, duration=300  # once per night

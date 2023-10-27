@@ -29,16 +29,16 @@ def get_tod_from_simulation_output(simulation_output: list[str], reference_anten
     scan_extent_a = None
     scan_extent_b = None
     for line_ in simulation_output:
-        # print(line_)
+        print(line_)
         if "Scan duration is" in line_:
             duration = float(re.split("Scan duration is|and scan speed is", line_)[1])
         elif 'Azimuth scan extent ' in line_:
             extent_str = line_.split('extent ')[1][:-1]
             scan_extent_a, scan_extent_b = np.asarray(extent_str.strip('[').strip(']').split(', '), float)
-        elif 'Slewed to scan_azel_with_nd_trigger' in line_ and duration and scan_extent_a and scan_extent_b:
-            # if first_time:
-            #     first_time = False
-            #     continue
+        elif 'Slewed to scan_azel_with_nd_trigger' in line_:
+            if first_time:
+                first_time = False
+                continue
             time_ = line_.split(' - ')[0]
             azel_str = line_.split('azel ')[1][:-5]
             az, el = np.asarray(azel_str.strip('[(').strip(')]').split(', '), float)
@@ -129,17 +129,17 @@ def main(output_file_paths: list[str],
         all_to_map.extend([map_value for _ in ra])
         map_value += 1
 
-    for corners, corner_color in zip([desi_1_rising_corners,
-                                      desi_1_setting_corners,
-                                      desi_2_rising_corners,
-                                      desi_2_setting_corners],
-                                     default_colours):
-        p1 = SkyCoord(corners['ra_max'], corners['dec_min'], unit=units.deg)
-        p2 = SkyCoord(corners['ra_min'], corners['dec_min'], unit=units.deg)
-        p3 = SkyCoord(corners['ra_min'], corners['dec_max'], unit=units.deg)
-        p4 = SkyCoord(corners['ra_max'], corners['dec_max'], unit=units.deg)
-        for point, label, marker in zip([p1, p2, p3, p4], ['p1', 'p2', 'p3', 'p4'], ['x', '+', '<', 'o']):
-            plt.scatter(point.ra.deg, point.dec.deg, marker=marker, color=corner_color)
+    # for corners, corner_color in zip([desi_1_rising_corners,
+    #                                   desi_1_setting_corners,
+    #                                   desi_2_rising_corners,
+    #                                   desi_2_setting_corners],
+    #                                  default_colours):
+    #     p1 = SkyCoord(corners['ra_max'], corners['dec_min'], unit=units.deg)
+    #     p2 = SkyCoord(corners['ra_min'], corners['dec_min'], unit=units.deg)
+    #     p3 = SkyCoord(corners['ra_min'], corners['dec_max'], unit=units.deg)
+    #     p4 = SkyCoord(corners['ra_max'], corners['dec_max'], unit=units.deg)
+    #     for point, label, marker in zip([p1, p2, p3, p4], ['p1', 'p2', 'p3', 'p4'], ['x', '+', '<', 'o']):
+    #         plt.scatter(point.ra.deg, point.dec.deg, marker=marker, color=corner_color)
 
     plt.xlabel('RA')
     plt.ylabel('Dec')
@@ -155,25 +155,23 @@ def main(output_file_paths: list[str],
     maps = maps[0]
     convolution_kernel = np.array([[1, 1, 1],
                                    [1, 1, 1],
-                                   [1, 1, 1]])/9
+                                   [1, 1, 1]]) / 9
     filtered = cv2.filter2D(np.asarray(maps, float), -1, convolution_kernel)
     mask = np.ones_like(maps)
-    mask[abs(maps-filtered)<1e-3] = 0
+    mask[abs(maps - filtered) < 1e-3] = 0
     mask = scipy.ndimage.binary_closing(mask)
     mask = scipy.ndimage.binary_erosion(mask, iterations=2)
     mask = scipy.ndimage.binary_dilation(mask, iterations=2)
 
     ra_range = max(right_ascension) - min(right_ascension)
     dec_range = max(declination) - min(declination)
-    area_per_pixel = ra_range * dec_range / 60**2
+    area_per_pixel = ra_range * dec_range / 60 ** 2
 
     mask_area = area_per_pixel * np.sum(mask)
     print(f'the mask area is {mask_area} square degrees.')
 
-    plt.imshow(mask*maps)
-    plt.show()
-
-
+    # plt.imshow(mask*maps)
+    # plt.show()
 
 
 if __name__ == '__main__':
@@ -182,8 +180,16 @@ if __name__ == '__main__':
     #       '/home/amadeus/git/astrokat-helper/output/desi_2_rising_observe.txt',
     #       '/home/amadeus/git/astrokat-helper/output/desi_2_setting_observe.txt'],
     #      ['desi 1 rising', 'desi 1 setting', 'desi 2 rising', 'desi 2 setting'])
-    main(['/home/amadeus/git/astrokat-helper/output/desi_2_rising_no_initial_calibrators_observe.txt'],
-         ['desi 2 rising no initial calibrators'])
+    # main(['/home/amadeus/git/astrokat-helper/output/desi_2_rising_no_initial_calibrators_observe.txt',
+    #       '/home/amadeus/git/astrokat-helper/output/desi_1_rising_observe.txt'],
+    #      ['desi 2 rising no initial calibrators',
+    #       'desi 1 rising'])
+    main(['/home/amadeus/git/astrokat-helper/output/test_observe.txt'],
+         ['test'])
+    # main(['/home/amadeus/git/astrokat-helper/output/desi_1_setting_no_initial_calibrators_observe.txt',
+    #       '/home/amadeus/git/astrokat-helper/output/desi_2_setting_observe.txt'],
+    #      ['desi 1 setting no initial calibrators',
+    #       'desi 2 setting'])
     # main(['/home/amadeus/git/astrokat-helper/output/desi_2_rising_observe.txt',
     #       '/home/amadeus/git/astrokat-helper/output/desi_2_setting_observe.txt'],
     #      ['desi 2 rising', 'desi 2 setting'])
