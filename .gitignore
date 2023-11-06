@@ -1,1 +1,4 @@
 *.code-workspace
+.vscode/*
+astrokat_helper.egg-info/*
+__*
