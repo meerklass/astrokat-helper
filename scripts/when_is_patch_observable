@@ -1,0 +1,121 @@
+import numpy as np
+import katpoint
+from scipy import ndimage
+import astrokat
+import ephem
+from datetime import datetime, timedelta
+from copy import deepcopy
+
+SECONDS_IN_ONE_DAY = 24*60*60
+
+
+class WhenIsPatchObservable:
+    """ DOC """
+
+    def __init__(self,
+                 point_list: list[tuple[str, str]],
+                 from_date: datetime = datetime.today(),
+                 min_elevation: float = 35,
+                 max_elevation: float = 50,
+                 days_from_now: int = 365):
+        """
+        Initialise
+        :param point_list:
+        :param from_date:
+        :param min_elevation:
+        :param max_elevation:
+        :param days_from_now
+        """
+        self.point_list = point_list
+        self.from_date = datetime.strptime(from_date, '%Y-%m-%d')
+        self.min_elevation = min_elevation
+        self.max_elevation = max_elevation
+
+        location = astrokat.Observatory().location
+        self.ref_antenna = katpoint.Antenna(location)
+        self.ref_antenna.observer.date = ephem.Date(from_date)
+        self.ref_antenna.observer.horizon = ephem.degrees(str(self.min_elevation))
+
+        self.ref_antenna_sun = katpoint.Antenna(location)
+        self.ref_antenna_sun.observer.date = ephem.Date(from_date)
+        self.ref_antenna_sun.observer.horizon = ephem.degrees(str(0))
+
+        self.sun = ephem.Sun()
+        self.sun_threshold = 30  # mintues
+
+        self.timedelta = timedelta(minutes=self.sun_threshold)
+        self.days_from_now = days_from_now
+
+    def target_body_list(self) -> list[ephem.FixedBody]:
+        """ Return a `list` of `ephem.FixedBody`s constructed from the points defined in `self.point_list`. """
+        target_body_list = []
+        for name, target in self.point_list:
+            ra, dec = target.split(' ')
+            x = ephem.FixedBody()
+            x._ra = ephem.hours(ra)
+            x._dec = ephem.degrees(dec)
+            x.name = name
+            target_body_list.append(x)
+        return target_body_list
+
+    def days_list(self) -> list[datetime]:
+        """
+        Return a `list` of `datetime` objects 
+        for each day between `self.from_date` and `self.days_from_now` later.
+        """
+        return [self.from_date + timedelta(days=d) for d in range(self.days_from_now)]
+
+    @staticmethod
+    def up_array(day: datetime, target: ephem.FixedBody, observer: ephem.Observer) -> np.ndarray[bool]:
+        """
+        Return a `boolean` `np.ndarray` with entries for each `minutes` for `day` which is 1 where `target` is observable
+        for `observer` and 0 otherwise.
+        """
+        minutes_per_day = 24*60
+        try:
+            rising = observer.next_rising(target).datetime()
+        except ephem.NeverUpError:
+            print(f'Target {target.name} never up on {day}.')
+            return np.ndarray([0 for _ in range(minutes_per_day)], dtype=bool)
+        setting = observer.next_setting(target).datetime()
+        result = []
+        for minutes in range(minutes_per_day):
+            now = day + timedelta(minutes=minutes)
+            if setting < rising:
+                is_up = now <= setting or now >= rising
+            else:
+                is_up = rising <= now <= setting
+            result.append(is_up)
+        return np.asarray(result, dtype=bool)
+
+    def run(self):
+        """
+        Print all days in `self.days_list()` 
+        along with the hours that the patch defined in `self.point_list` is observable on each day. 
+        """
+        target_body_list = self.target_body_list()
+        for day in self.days_list():
+            ephem_day = ephem.Date(day)
+            self.ref_antenna.observer.date = ephem_day
+            self.ref_antenna_sun.observer.date = ephem_day
+            sun_up_array = self.up_array(day, self.sun, self.ref_antenna_sun.observer)
+            sun_up_array = ndimage.binary_dilation(sun_up_array, iterations=self.sun_threshold)
+            targets_observable_list = []
+            for target in target_body_list:
+                target_up_array = self.up_array(day=day, target=target, observer=self.ref_antenna.observer)
+                is_observable_array = target_up_array * np.logical_not(sun_up_array)
+                observable_minutes = np.sum(is_observable_array)
+                targets_observable_list.append(observable_minutes)
+            patch_observable_hours = np.min(targets_observable_list)/60
+            print(f'{day.date()} {patch_observable_hours:.0f} hours')
+
+
+if __name__ == '__main__':
+    when_is_patch_observable = WhenIsPatchObservable(
+        point_list=[('p1', '00:24:00.00 -05:00:00.00'),
+                    ('p2', '01:20:00.00 -05:00:00.00'),
+                    ('p3', '01:20:00.00 05:00:00.00'),
+                    ('p4', '00:24:00.00 05:00:00.00')],
+        from_date='2023-11-11'
+    )
+    when_is_patch_observable.run()
