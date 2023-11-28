@@ -1,3 +1,5 @@
+
+
 import numpy as np
 import katpoint
 from scipy import ndimage
@@ -6,7 +8,6 @@ import ephem
 from datetime import datetime, timedelta
 from astropy.coordinates import SkyCoord
 from astropy import units
-import sys
 from scripts.yaml_offseter import get_coordinate_strings
 import argparse
 from typing import Optional
@@ -16,7 +17,7 @@ SECONDS_IN_ONE_DAY = 24*60*60
 
 
 class WhenIsPatchObservable:
-    """ DOC """
+    """ Class to explicitly check drift-scannability of a patch for a set of dates. """
 
     def __init__(self,
                  point_list: list[str],
@@ -59,7 +60,12 @@ class WhenIsPatchObservable:
 
     @staticmethod
     def get_point_list(point_list: list[float]) -> list[str]:
-        """ DOC """
+        """
+        Returns a `list` of `str` hourangle corners corresponding to the degree right
+        ascension and declination min and max values defined in `point_list`.
+        :param point_list: needs to be length 4, `[ra_min, ra_max, dec_min, dec_max]`
+        :raise ValueError: if `point_list` is not exactly of length 4
+        """
         if (len_point_list := len(point_list)) != 4:
             raise ValueError(f'`point_list` must have exactly 4 entries, got {len_point_list}.')
         ra_1, ra_2, dec_1, dec_2 = point_list
@@ -95,8 +101,8 @@ class WhenIsPatchObservable:
     @staticmethod
     def up_array(day: datetime, target: ephem.FixedBody, observer: ephem.Observer) -> np.ndarray[bool]:
         """
-        Return a `boolean` `np.ndarray` with entries for each `minutes` for `day` which is 1 where `target` is observable
-        for `observer` and 0 otherwise.
+        Return a `boolean` `np.ndarray` with entries for each `minutes` for `day` which is 1 where `target` 
+        is observable for `observer` and 0 otherwise.
         """
         minutes_per_day = 24*60
         try:
@@ -122,8 +128,8 @@ class WhenIsPatchObservable:
 
     def run(self):
         """
-        Print all days in `self.days_list()` 
-        along with the hours that the patch defined in `self.point_list` is observable on each day. 
+        Print all drift-scannable days in `self.days_list()` 
+        along with the hours that the patch defined in `self.point_list` is observable on each day rising and setting. 
         """
         target_body_list = self.target_body_list()
         for day in self.days_list():
@@ -153,11 +159,22 @@ class WhenIsPatchObservable:
             print(f'{day.date()} {rising_hours:.1f} hours rising {setting_hours:.1f} hours setting')
 
     def patch_is_observable(self,
-                            target_body_list,
-                            day,
-                            is_observable_array_list,
-                            transit_index_list,
-                            observer):
+                            target_body_list: list[ephem.FixedBody],
+                            day: list[datetime],
+                            is_observable_array_list: list[np.ndarray[bool]],
+                            transit_index_list: list[int],
+                            observer: ephem.Observer) -> bool:
+        """
+        Return `True` if the patch defined in `target_body_list` is observable on `day` and `False` otherwise.
+        :param target_body_list: `list` of `ephem` bodies defining the patch
+        :param day: date in question
+        :param is_observable_array_list: one `boolean` array for each body in `target_body_list`, each of length
+                                         24*60, i.e. one entry per minute. `True` means the target is up on the sky
+        :param transit_index_list: `list` with entries for each target body, defining the index of the minute of
+                                  maximum elevation of that target
+        :param observer: ephem observer
+        :return: `bool` `True` if the patch is observable
+        """
         max_alt_list = []
         alt_list_rising = []
         alt_list_setting = []
@@ -183,7 +200,8 @@ class WhenIsPatchObservable:
         return all(np.asarray(max_alt_list) > max(max_at_set, max_at_rise))
 
     @staticmethod
-    def changing_indices(array, index):
+    def changing_indices(array: np.ndarray[int], index: int) -> tuple[int | None, int | None]:
+        """ Return optional indices of the blob in `array` containing `index`. """
         if array[index]:
             labelled, _ = ndimage.label(array)
             label = labelled[index]
@@ -195,7 +213,8 @@ class WhenIsPatchObservable:
             return None, None
 
     @staticmethod
-    def elevation_at(date, observer, body):
+    def elevation_at(date: datetime, observer: ephem.Observer, body: ephem.FixedBody) -> float:
+        """ Return the `elevation` of `body` at `date` as seen by `observer`. """
         date_backup = observer.date
         observer.date = date
         body.compute(observer)
@@ -204,7 +223,8 @@ class WhenIsPatchObservable:
         return result
 
 
-if __name__ == '__main__':
+def main():
+    """ Run the `run` method with arguments from the command line. """
     cli = argparse.ArgumentParser()
     cli.add_argument(
         "--corners",
@@ -259,3 +279,7 @@ if __name__ == '__main__':
         days_from_now=args.days[0]
     )
     when_is_patch_observable.run()
+
+
+if __name__ == '__main__':
+    main()
