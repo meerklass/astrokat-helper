@@ -2,3 +2,4 @@
 .vscode/*
 astrokat_helper.egg-info/*
 __*
+build/*
