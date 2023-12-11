@@ -1,5 +1,6 @@
 
 
+import os
 import numpy as np
 import katpoint
 from scipy import ndimage
@@ -11,6 +12,7 @@ from astropy import units
 from scripts.yaml_offseter import get_coordinate_strings
 import argparse
 from typing import Optional
+from matplotlib import pyplot as plt
 
 
 SECONDS_IN_ONE_DAY = 24*60*60
@@ -25,7 +27,8 @@ class WhenIsPatchObservable:
                  from_date: Optional[datetime] = None,
                  min_elevation: float = 35,
                  max_elevation: float = 50,
-                 days_from_now: int = 365):
+                 days_from_now: int = 365,
+                 plot_dir: str | None = None):
         """
         Initialise
         :param point_list: `list` of `str` point coordinates (hourangle). must have length 4
@@ -34,10 +37,12 @@ class WhenIsPatchObservable:
         :param min_elevation: minimum elevation of target patch
         :param max_elevation: maximum elevation of target patch
         :param days_from_now: number of days to consider starting from `from_date`
+        :param plot_dir: directory to store plots, if `None`, they are not created
         """
+        date_format = '%Y-%m-%d'
         self.point_list = self.get_point_list(point_list=point_list)
         if from_date is not None:
-            self.from_date = datetime.strptime(from_date, '%Y-%m-%d')
+            self.from_date = datetime.strptime(from_date, date_format)
         else:
             self.from_date = datetime.today()
         self.min_elevation = min_elevation
@@ -45,11 +50,11 @@ class WhenIsPatchObservable:
 
         location = astrokat.Observatory().location
         self.ref_antenna = katpoint.Antenna(location)
-        self.ref_antenna.observer.date = ephem.Date(from_date)
+        self.ref_antenna.observer.date = ephem.Date(self.from_date.strftime(date_format))
         self.ref_antenna.observer.horizon = ephem.degrees(str(self.min_elevation))
 
         self.ref_antenna_sun = katpoint.Antenna(location)
-        self.ref_antenna_sun.observer.date = ephem.Date(from_date)
+        self.ref_antenna_sun.observer.date = ephem.Date(self.from_date.strftime(date_format))
         self.ref_antenna_sun.observer.horizon = ephem.degrees(str(0))
 
         self.sun = ephem.Sun()
@@ -57,6 +62,8 @@ class WhenIsPatchObservable:
 
         self.timedelta = timedelta(minutes=self.sun_threshold)
         self.days_from_now = days_from_now
+
+        self.plot_dir = plot_dir
 
     @staticmethod
     def get_point_list(point_list: list[float]) -> list[str]:
@@ -115,12 +122,17 @@ class WhenIsPatchObservable:
         minutes_list = []
         for minutes in range(minutes_per_day):
             now = day + timedelta(minutes=minutes)
-            minutes_list.append(now)
+            condition_a = now >= rising
+            condition_b = now <= setting
             if setting < rising:
-                is_up = now <= setting or now >= rising
+                is_up = condition_a or condition_b
             else:
-                is_up = rising <= now <= setting
+                is_up = condition_a and condition_b
             result.append(is_up)
+            if is_up:
+                minutes_list.append(now)
+            else:
+                minutes_list.append(day+timedelta(days=10))  # arbitrary date in the future
         result = np.asarray(result, dtype=bool)
         minutes_list = np.asarray(minutes_list)
         transit_index = np.argmin(abs(minutes_list - observer.next_transit(target).datetime()))
@@ -138,6 +150,15 @@ class WhenIsPatchObservable:
             self.ref_antenna_sun.observer.date = ephem_day
             sun_up_array, _ = self.up_array(day, self.sun, self.ref_antenna_sun.observer)
             sun_up_array = ndimage.binary_dilation(sun_up_array, iterations=self.sun_threshold)
+
+            if self.plot_dir is not None:
+                plt.figure(figsize=(20, 5))
+                plt.plot(np.arange(len(sun_up_array))/60, sun_up_array)
+                plt.xlabel('time of day UTC [hours]')
+                plt.title('binary observability')
+                plt.savefig(os.path.join(self.plot_dir, 'sun.png'))
+                plt.close()
+
             is_observable_array_list = []
             transit_index_list = []
             for target in target_body_list:
@@ -148,19 +169,24 @@ class WhenIsPatchObservable:
                 is_observable_array_list.append(is_observable_array)
                 transit_index_list.append(transit_index)
 
-            if not self.patch_is_observable(target_body_list=target_body_list,
-                                            day=day,
-                                            is_observable_array_list=is_observable_array_list,
-                                            transit_index_list=transit_index_list,
-                                            observer=self.ref_antenna.observer):
-                continue
-            rising_hours = np.min([np.sum(array_[:transit_index]) for array_ in is_observable_array_list])/60
-            setting_hours = np.min([np.sum(array_[transit_index:]) for array_ in is_observable_array_list])/60
-            print(f'{day.date()} {rising_hours:.1f} hours rising {setting_hours:.1f} hours setting')
+            is_observable = self.patch_is_observable(target_body_list=target_body_list,
+                                                     day=day,
+                                                     is_observable_array_list=is_observable_array_list,
+                                                     transit_index_list=transit_index_list,
+                                                     observer=self.ref_antenna.observer)
+            if is_observable == (False, False):
+                print_str = 'NO'
+            elif is_observable == (True, False):
+                print_str = 'only setting'
+            elif is_observable == (False, True):
+                print_str = 'only rising'
+            else:
+                print_str = 'both rising and setting'
+            print(f'{day.date()} {print_str}')
 
     def patch_is_observable(self,
                             target_body_list: list[ephem.FixedBody],
-                            day: list[datetime],
+                            day: datetime,
                             is_observable_array_list: list[np.ndarray[bool]],
                             transit_index_list: list[int],
                             observer: ephem.Observer) -> bool:
@@ -185,7 +211,20 @@ class WhenIsPatchObservable:
                                                   body=body))
             rise_index, set_index = self.changing_indices(array=is_observable_array_list[i], index=transit_index)
             if rise_index is None:
-                return False
+                return False, False
+
+            minutes = [day + timedelta(minutes=float(x)) for x in range(len(is_observable_array_list[i]))]
+            if self.plot_dir is not None:
+                plt.figure(figsize=(20, 5))
+                plt.plot(np.arange(len(is_observable_array_list[i]))/60, is_observable_array_list[i])
+                plt.axvline(transit_index/60, color='red', label='max elevation')
+                plt.axvline(rise_index/60, color='blue', label='rise')
+                plt.axvline(set_index/60, color='green', label='set')
+                plt.xlabel('time of day UTC [hours]')
+                plt.title('binary observability')
+                plt.legend()
+                plt.savefig(f'corner_{i}.png')
+                plt.close()
             rising_date = day + timedelta(minutes=float(rise_index))
             setting_date = day + timedelta(minutes=float(set_index))
             alt_list_rising.append(self.elevation_at(date=rising_date,
@@ -195,19 +234,30 @@ class WhenIsPatchObservable:
                                                       observer=observer,
                                                       body=body))
 
-        max_at_rise = max(alt_list_rising)
-        max_at_set = max(alt_list_setting)
-        return all(np.asarray(max_alt_list) > max(max_at_set, max_at_rise))
+        max_at_rise = np.asarray(max(alt_list_rising))
+        max_at_set = np.asarray(max(alt_list_setting))
+        return all(max_alt_list > max_at_set), all(max_alt_list > max_at_rise)
 
     @staticmethod
-    def changing_indices(array: np.ndarray[int], index: int) -> tuple[int | None, int | None]:
-        """ Return optional indices of the blob in `array` containing `index`. """
+    def first_last(array: np.ndarray[int], index: int):
+        """ Return the first and last index of the blob in `array` that contains entry at `index`. """
+        labelled, _ = ndimage.label(array)
+        label = labelled[index]
+        where = np.where(labelled == label)[0]
+        first = where[0]
+        last = where[-1]
+        return first, last
+
+    def changing_indices(self, array: np.ndarray[bool], index: int) -> tuple[int | None, int | None]:
+        """ Return optional start and end indices of the blob in `array` containing `index`. """
+        last_index = len(array) - 1
         if array[index]:
-            labelled, _ = ndimage.label(array)
-            label = labelled[index]
-            where = np.where(labelled == label)[0]
-            first = where[0]
-            last = where[-1]
+            is_true = np.where(array)[0]
+            if 0 in is_true and last_index in is_true:  # blob spans end to start
+                _, last = self.first_last(array=array, index=0)
+                first, _ = self.first_last(array=array, index=last_index)
+            else:
+                first, last = self.first_last(array=array, index=index)
             return first, last
         else:
             return None, None
@@ -268,15 +318,31 @@ def main():
         help='provide number of days from input date to consider',
         default=[365]
     )
+    cli.add_argument(
+        "--plot_dir",
+        nargs=1,
+        type=str,
+        help='',
+        default=None,
+    )
     args = cli.parse_args()
 
+    if args.date is None:
+        from_date = None
+    else:
+        from_date = args.date[0]
+    if args.plot_dir is None:
+        plot_dir = None
+    else:
+        plot_dir = args.plot_dir[0]
     when_is_patch_observable = WhenIsPatchObservable(
         point_list=args.corners,
-        from_date=args.date[0],
+        from_date=from_date,
         buffer=args.buffer[0],
         min_elevation=args.min_elevation[0],
         max_elevation=args.max_elevation[0],
-        days_from_now=args.days[0]
+        days_from_now=args.days[0],
+        plot_dir=plot_dir
     )
     when_is_patch_observable.run()
 
