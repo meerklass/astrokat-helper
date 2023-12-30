@@ -63,15 +63,15 @@ class WhenIsPatchObservable:
         self.plot_dir = plot_dir
 
     def print(self):
-        print(
+        print("\nParameters:",
         self.point_list,
         self.from_date,
         self.sun_threshold,
         self.min_elevation,
         self.max_elevation,
         self.days_from_now,
-        self.plot_dir)
-        print()
+        self.plot_dir, "\n", flush = True)
+        
 
 
     @staticmethod
@@ -191,6 +191,16 @@ class WhenIsPatchObservable:
         return elevation_list 
     
     
+    def get_lst(self, observer: ephem.Observer, date: datetime):
+        """"
+        returns lst in hour:min:sec pyephem format
+        """
+        date_backup = observer.date
+        observer.date = ephem.Date(date)      # don't we need to use ephem.Date(date) since date is in datetime?
+        lst = observer.sidereal_time()
+        observer.date = date_backup
+        return lst
+    
 
     def run(self):
         """
@@ -200,7 +210,7 @@ class WhenIsPatchObservable:
         target_body_list = self.target_body_list()
         patch_observed = False
         el_res = self.time_res*360/24/60/60/2
-        print('day       ','rise/set  ', 'min_start_time  ', 'elevation  ', 'duration  ', 'max_start_time  ', 'elevation  ', 'duration')
+        print(f'{"day":<11}{"rise/set":<11}{"min_start_time":<17}{"min_start_lst":<16}{"elevation":<12}{"duration":<11}{"max_start_time":<17}{"max_start_lst":<16}{"elevation":<12}{"duration":8}')
         for day in self.days_list():
             ephem_day = ephem.Date(day)
             self.ref_antenna.observer.date = ephem_day
@@ -246,12 +256,14 @@ class WhenIsPatchObservable:
                     for x in rise_set_curve_list:
                         idx = [i for i,f in enumerate(x[1]) if abs(f-rise_max_el) <= el_res]
                         if idx != []: time.append(x[0][idx[0]])
-                    if len(time) == len(target_body_list):
+                    if len(time) == len(target_body_list):  #note: if there is a min el then there should be a max el and vice versa
                         patch_observed = True 
                         rise_max_el_time = min(time)
                         end_time = max(time)
                         rise_max_el_duration = end_time - rise_max_el_time
-                        print('{}   rise       {}   {:.2f}       {}    {}   {:.2f}       {}'.format(day.strftime("%d/%m/%y"), rise_min_el_time.strftime('%d/%m/%y %H:%M'), rise_min_el, rise_min_el_duration, rise_max_el_time.strftime('%d/%m/%y %H:%M'), rise_max_el, rise_max_el_duration))
+                        rise_min_el_lst = self.get_lst(self.ref_antenna.observer, rise_min_el_time)
+                        rise_max_el_lst = self.get_lst(self.ref_antenna.observer, rise_max_el_time)
+                        print(f'{day.strftime("%d/%m/%y"):<11}{"rise":<11}{rise_min_el_time.strftime("%d/%m/%y %H:%M"):<17}{str(rise_min_el_lst):<16}{rise_min_el:<12.2f}{str(rise_min_el_duration):<11}{rise_max_el_time.strftime("%d/%m/%y %H:%M"):<17}{str(rise_max_el_lst):<16}{rise_max_el:<12.2f}{str(rise_max_el_duration):8}')
                         
                 
                 if all(x[2] for x in rise_set_curve_list):   # all points set
@@ -279,7 +291,9 @@ class WhenIsPatchObservable:
                         set_min_el_time = min(time)
                         end_time = max(time)
                         set_min_el_duration = end_time - set_min_el_time
-                        print('{}   set        {}   {:.2f}       {}    {}   {:.2f}       {}'.format(day.strftime("%d/%m/%y"), set_max_el_time.strftime('%d/%m/%y %H:%M'), set_max_el, set_max_el_duration, set_min_el_time.strftime('%d/%m/%y %H:%M'), set_min_el, set_min_el_duration))
+                        set_min_el_lst = self.get_lst(self.ref_antenna.observer, set_min_el_time)
+                        set_max_el_lst = self.get_lst(self.ref_antenna.observer, set_max_el_time)
+                        print(f'{day.strftime("%d/%m/%y"):<11}{"set":<11}{set_max_el_time.strftime("%d/%m/%y %H:%M"):<17}{str(set_max_el_lst):<16}{set_max_el:<12.2f}{str(set_max_el_duration):<11}{set_min_el_time.strftime("%d/%m/%y %H:%M"):<17}{str(set_min_el_lst):<16}{set_min_el:<12.2f}{str(set_min_el_duration):8}')
                     
                 if self.plot_dir is not None:
                     plt.figure(figsize=(20, 5))
@@ -301,7 +315,7 @@ class WhenIsPatchObservable:
     def elevation_at(date: datetime, observer: ephem.Observer, body: ephem.FixedBody) -> float:
         """ Return the `elevation` in degrees of `body` at `date` as seen by `observer`. """
         date_backup = observer.date
-        observer.date = date
+        observer.date = ephem.Date(date)      # don't we need to use ephem.Date(date) since date is in datetime?
         body.compute(observer)
         result = float(body.alt)*180/np.pi
         observer.date = date_backup
