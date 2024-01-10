@@ -23,11 +23,23 @@ def main():
     # dec_min = -8.85
     # dec_max = 5.45
 
-    # DESI 2 setting
-    ra_max = 175.98
-    ra_min = 161.99
-    dec_min = -8.85
-    dec_max = 5.54
+    # # DESI 2 setting
+    # ra_max = 175.98
+    # ra_min = 161.99
+    # dec_min = -8.85
+    # dec_max = 5.54
+    
+    # jan 2024 patch 1
+    ra_max = 139
+    ra_min = 156
+    dec_min = -21
+    dec_max = -7
+    
+    # # jan 2024 patch 2
+    # ra_max = 162
+    # ra_min = 179
+    # dec_min = -21
+    # dec_max = -7
 
     p1 = SkyCoord(ra_max, dec_min, unit=units.deg)
     p2 = SkyCoord(ra_min, dec_min, unit=units.deg)
