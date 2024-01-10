@@ -42,5 +42,5 @@ observation_loop:
       - name=PictorA,       radec= 5:19:49.721 -45:46:43.7801, tags=target, type=track, duration=70.0
       - name=PictorA_l0.8,  radec= 5:15:14.443 -45:46:23.1211, tags=target, type=track, duration=70.0
       - name=J1051-2023,    radec= 10:51:32.17 -20:23:47.4, tags=gaincal, duration=120
-      - name=J0408-6545 | 0408-658, radec=04:08:20.3782 -65:45:09.080, tags=fluxcal bpcal delaycal, duration=300
+      - name=J0825-5010, radec=8:25:26.87 -50:10:38.5, tags=fluxcal bpcal delaycal, duration=300
       - name=J1130-1449, radec=11:30:07.05 -14:49:27.4, tags=polcal, duration=300  # once per night

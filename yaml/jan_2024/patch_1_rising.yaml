@@ -1,6 +1,6 @@
 durations:
-  # start_time: 2024-01-10 20:35:00     # This is the start time so that you can test these on using astrokat
-  start_time: 2024-01-10 21:50:00     # This is the start time so that you can test these on using astrokat
+  start_time: 2024-01-10 20:35:00     # This is the start time so that you can test these on using astrokat
+  # start_time: 2024-01-10 21:50:00     # This is the start time so that you can test these on using astrokat
 instrument:
   integration_time: 2
 # set noise diode pattern to fire every 20 seconds and only be on for 0.6s
@@ -25,7 +25,7 @@ horizon: 15
 observation_loop:
   - LST:  05:18-06:40   # The valid range when this observation can be started. This includes the calibration parts.
     target_list:
-      - name=J1051-2023,    radec= 10:51:32.17 -20:23:47.4, tags=gaincal, duration=120
+      - name=J0828-3731,    radec=8:28:04.78 -37:31:06.3, tags=gaincal, duration=120
       - name=HydraA_u0.8,  radec= 09:18:5.66880 -11:17:43.95480,     tags=target, type=track, duration=70.0
       - name=HydraA,  radec= 09:18:5.66880 -12:5:43.95480,     tags=target, type=track, duration=70.0
       - name=HydraA_d0.8,  radec= 09:18:5.66880 -12:53:43.95480,     tags=target, type=track, duration=70.0
@@ -41,6 +41,6 @@ observation_loop:
       - name=PictorA_r0.8,  radec= 5:24:24.999 -45:46:23.1211, tags=target, type=track, duration=70.0
       - name=PictorA,       radec= 5:19:49.721 -45:46:43.7801, tags=target, type=track, duration=70.0
       - name=PictorA_l0.8,  radec= 5:15:14.443 -45:46:23.1211, tags=target, type=track, duration=70.0
-      - name=J1051-2023,    radec= 10:51:32.17 -20:23:47.4, tags=gaincal, duration=120
+      - name=J0828-3731,    radec=8:28:04.78 -37:31:06.3, tags=gaincal, duration=120
       - name=J0408-6545 | 0408-658, radec=04:08:20.3782 -65:45:09.080, tags=fluxcal bpcal delaycal, duration=300
       - name=J1130-1449, radec=11:30:07.05 -14:49:27.4, tags=polcal, duration=300  # once per night
