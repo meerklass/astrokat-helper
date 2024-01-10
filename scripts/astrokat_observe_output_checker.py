@@ -1,6 +1,6 @@
 import re
 
-import cv2
+# import cv2
 import scipy.ndimage
 import sys
 from datetime import timedelta
@@ -152,23 +152,23 @@ def main(output_file_paths: list[str],
     maps, _ = TimeOrderedDataMapper(right_ascension=right_ascension,
                                     declination=declination,
                                     to_map=to_map).grid(grid_size=(60, 60), method='nearest')
-    maps = maps[0]
-    convolution_kernel = np.array([[1, 1, 1],
-                                   [1, 1, 1],
-                                   [1, 1, 1]]) / 9
-    filtered = cv2.filter2D(np.asarray(maps, float), -1, convolution_kernel)
-    mask = np.ones_like(maps)
-    mask[abs(maps - filtered) < 1e-3] = 0
-    mask = scipy.ndimage.binary_closing(mask)
-    mask = scipy.ndimage.binary_erosion(mask, iterations=2)
-    mask = scipy.ndimage.binary_dilation(mask, iterations=2)
+    # maps = maps[0]
+    # convolution_kernel = np.array([[1, 1, 1],
+    #                                [1, 1, 1],
+    #                                [1, 1, 1]]) / 9
+    # filtered = cv2.filter2D(np.asarray(maps, float), -1, convolution_kernel)
+    # mask = np.ones_like(maps)
+    # mask[abs(maps - filtered) < 1e-3] = 0
+    # mask = scipy.ndimage.binary_closing(mask)
+    # mask = scipy.ndimage.binary_erosion(mask, iterations=2)
+    # mask = scipy.ndimage.binary_dilation(mask, iterations=2)
 
-    ra_range = max(right_ascension) - min(right_ascension)
-    dec_range = max(declination) - min(declination)
-    area_per_pixel = ra_range * dec_range / 60 ** 2
+    # ra_range = max(right_ascension) - min(right_ascension)
+    # dec_range = max(declination) - min(declination)
+    # area_per_pixel = ra_range * dec_range / 60 ** 2
 
-    mask_area = area_per_pixel * np.sum(mask)
-    print(f'the mask area is {mask_area} square degrees.')
+    # mask_area = area_per_pixel * np.sum(mask)
+    # print(f'the mask area is {mask_area} square degrees.')
 
     # plt.imshow(mask*maps)
     # plt.show()
@@ -184,8 +184,8 @@ if __name__ == '__main__':
     #       '/home/amadeus/git/astrokat-helper/output/desi_1_rising_observe.txt'],
     #      ['desi 2 rising no initial calibrators',
     #       'desi 1 rising'])
-    main(['/home/amadeus/git/astrokat-helper/output/test_observe.txt'],
-         ['test'])
+    # main(['/home/amadeus/git/astrokat-helper/output/test_observe.txt'],
+    #      ['test'])
     # main(['/home/amadeus/git/astrokat-helper/output/desi_1_setting_no_initial_calibrators_observe.txt',
     #       '/home/amadeus/git/astrokat-helper/output/desi_2_setting_observe.txt'],
     #      ['desi 1 setting no initial calibrators',
@@ -193,3 +193,8 @@ if __name__ == '__main__':
     # main(['/home/amadeus/git/astrokat-helper/output/desi_2_rising_observe.txt',
     #       '/home/amadeus/git/astrokat-helper/output/desi_2_setting_observe.txt'],
     #      ['desi 2 rising', 'desi 2 setting'])
+    main(['/home/amadeus/git/astrokat-helper/output/patch_1_rising.txt',
+          '/home/amadeus/git/astrokat-helper/output/patch_2_rising.txt',
+          '/home/amadeus/git/astrokat-helper/output/patch_1_setting.txt',
+          '/home/amadeus/git/astrokat-helper/output/patch_2_setting.txt'],
+         ['1R', '2R', '1S', '2S'])
