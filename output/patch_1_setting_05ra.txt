@@ -1,0 +1,233 @@
+2024-01-11 10:32:06Z - Setting up telescope for observation
+2024-01-11 10:32:06Z - Observation start up
+2024-01-11 10:32:06Z - Running astrokat version - 0.1.dev913+master.f7e29ce
+2024-01-11 10:32:06Z - Skipping instrument checks - approved_schedule does not exist
+2024-01-11 10:32:06Z - Report: noise-diode off at 1704969131.61735
+2024-01-11 10:32:06Z - Found 9 target(s): 0 from 0 catalogue(s), 0 from default catalogue and 19 as target string(s)
+2024-02-20 23:15:00Z - DELAY calibrators are ['J0408-6545']
+2024-02-20 23:15:00Z - POL calibrators are ['J1130-1449']
+2024-02-20 23:15:00Z - BP calibrators are ['J0408-6545']
+2024-02-20 23:15:00Z - GAIN calibrators are ['J0828-3731']
+2024-02-20 23:15:00Z - FLUX calibrators are ['J0408-6545']
+2024-02-20 23:15:00Z - Observation targets are ['3C273_u0.8', '3C273', '3C273_d0.8', '3C273_r0.8', '3C273_l0.8', 'scan_azel_with_nd_trigger']
+2024-02-20 23:15:00Z - Set noise diode period to multiple of correlator dump period: cycle length = 19.5 [sec]
+2024-02-20 23:15:00Z - Request: Set noise diode pattern to activate at 1708470912.0 (includes 12.0 sec lead time)
+2024-02-20 23:15:00Z - Antennas found in subarray, setting ND: m011,m022,m033,m044
+2024-02-20 23:15:00Z - Repeat noise diode pattern every 19.5 sec, with 0.585 sec on and apply pattern to ['m011', 'm022', 'm033', 'm044']
+2024-02-20 23:15:12Z - Report: Switch noise-diode pattern on at 1708470912.0
+2024-02-20 23:15:12Z - Waiting for observation setup
+2024-02-20 23:15:15Z - INIT
+2024-02-20 23:15:15Z - Slewing to first target
+2024-02-20 23:16:00Z - Slewed to J0828-3731 at azel (246.8, 61.7) deg
+2024-02-20 23:16:00Z - Tracked J0828-3731 for 0 seconds
+2024-02-20 23:16:00Z - Initialising Track gaincal J0828-3731 for 120.0 sec
+2024-02-20 23:16:00Z - Slewed to J0828-3731 at azel (246.8, 61.5) deg
+2024-02-20 23:18:00Z - Tracked J0828-3731 for 120 seconds
+2024-02-20 23:18:00Z - Initialising Track target 3C273_u0.8 for 70.0 sec
+2024-02-20 23:19:27Z - Slewed to 3C273_u0.8 at azel (41.6, 48.2) deg
+2024-02-20 23:20:37Z - Tracked 3C273_u0.8 for 70 seconds
+2024-02-20 23:20:37Z - Initialising Track target 3C273 for 70.0 sec
+2024-02-20 23:20:43Z - Slewed to 3C273 at azel (41.4, 49.3) deg
+2024-02-20 23:21:53Z - Tracked 3C273 for 70 seconds
+2024-02-20 23:21:53Z - Initialising Track target 3C273_d0.8 for 70.0 sec
+2024-02-20 23:21:58Z - Slewed to 3C273_d0.8 at azel (41.7, 50.1) deg
+2024-02-20 23:23:08Z - Tracked 3C273_d0.8 for 70 seconds
+2024-02-20 23:23:08Z - Initialising Track target 3C273 for 70.0 sec
+2024-02-20 23:23:14Z - Slewed to 3C273 at azel (40.6, 49.6) deg
+2024-02-20 23:24:24Z - Tracked 3C273 for 70 seconds
+2024-02-20 23:24:24Z - Initialising Track target 3C273_r0.8 for 70.0 sec
+2024-02-20 23:24:29Z - Slewed to 3C273_r0.8 at azel (41.3, 49.4) deg
+2024-02-20 23:25:39Z - Tracked 3C273_r0.8 for 70 seconds
+2024-02-20 23:25:39Z - Initialising Track target 3C273 for 70.0 sec
+2024-02-20 23:25:44Z - Slewed to 3C273 at azel (39.8, 50.0) deg
+2024-02-20 23:26:54Z - Tracked 3C273 for 70 seconds
+2024-02-20 23:26:54Z - Initialising Track target 3C273_l0.8 for 70.0 sec
+2024-02-20 23:26:59Z - Slewed to 3C273_l0.8 at azel (38.4, 50.6) deg
+2024-02-20 23:28:09Z - Tracked 3C273_l0.8 for 70 seconds
+2024-02-20 23:28:09Z - Slew to scan start
+2024-02-20 23:29:20Z - Slewed to scan_azel_with_nd_trigger at azel (-82.2, 56.4) deg
+2024-02-20 23:29:20Z - Tracked scan_azel_with_nd_trigger for 0 seconds
+2024-02-20 23:29:20Z - Scan duration is 150.68 and scan speed is 0.21 deg/s
+2024-02-20 23:29:20Z - Start Time: 2024-02-20 23:29:57.172
+2024-02-20 23:29:20Z - End Time: 2024-02-21 01:20:20.041
+2024-02-20 23:29:20Z - Azimuth scan extent [16.2, -16.2]
+2024-02-20 23:29:20Z - Scan target: scan_azel_with_nd_trigger, tags=azel, -65:26:05.4 57:04:02.4, no flux info
+2024-02-20 23:29:39Z - Slewed to scan_azel_with_nd_trigger at azel (-65.4, 57.1) deg
+2024-02-20 23:32:09Z - Azimuth scan extent [-16.2, 16.2]
+2024-02-20 23:32:09Z - Scan target: scan_azel_with_nd_trigger, tags=azel, -65:26:05.4 57:04:02.4, no flux info
+2024-02-20 23:32:09Z - Slewed to scan_azel_with_nd_trigger at azel (-65.4, 57.1) deg
+2024-02-20 23:34:40Z - Azimuth scan extent [16.2, -16.2]
+2024-02-20 23:34:40Z - Scan target: scan_azel_with_nd_trigger, tags=azel, -65:26:05.4 57:04:02.4, no flux info
+2024-02-20 23:34:40Z - Slewed to scan_azel_with_nd_trigger at azel (-65.4, 57.1) deg
+2024-02-20 23:37:11Z - Azimuth scan extent [-16.2, 16.2]
+2024-02-20 23:37:11Z - Scan target: scan_azel_with_nd_trigger, tags=azel, -65:26:05.4 57:04:02.4, no flux info
+2024-02-20 23:37:11Z - Slewed to scan_azel_with_nd_trigger at azel (-65.4, 57.1) deg
+2024-02-20 23:39:41Z - Azimuth scan extent [16.2, -16.2]
+2024-02-20 23:39:41Z - Scan target: scan_azel_with_nd_trigger, tags=azel, -65:26:05.4 57:04:02.4, no flux info
+2024-02-20 23:39:41Z - Slewed to scan_azel_with_nd_trigger at azel (-65.4, 57.1) deg
+2024-02-20 23:42:12Z - Azimuth scan extent [-16.2, 16.2]
+2024-02-20 23:42:12Z - Scan target: scan_azel_with_nd_trigger, tags=azel, -65:26:05.4 57:04:02.4, no flux info
+2024-02-20 23:42:12Z - Slewed to scan_azel_with_nd_trigger at azel (-65.4, 57.1) deg
+2024-02-20 23:44:43Z - Azimuth scan extent [16.2, -16.2]
+2024-02-20 23:44:43Z - Scan target: scan_azel_with_nd_trigger, tags=azel, -65:26:05.4 57:04:02.4, no flux info
+2024-02-20 23:44:43Z - Slewed to scan_azel_with_nd_trigger at azel (-65.4, 57.1) deg
+2024-02-20 23:47:13Z - Azimuth scan extent [-16.2, 16.2]
+2024-02-20 23:47:13Z - Scan target: scan_azel_with_nd_trigger, tags=azel, -65:26:05.4 57:04:02.4, no flux info
+2024-02-20 23:47:13Z - Slewed to scan_azel_with_nd_trigger at azel (-65.4, 57.1) deg
+2024-02-20 23:49:44Z - Azimuth scan extent [16.2, -16.2]
+2024-02-20 23:49:44Z - Scan target: scan_azel_with_nd_trigger, tags=azel, -65:26:05.4 57:04:02.4, no flux info
+2024-02-20 23:49:44Z - Slewed to scan_azel_with_nd_trigger at azel (-65.4, 57.1) deg
+2024-02-20 23:52:15Z - Azimuth scan extent [-16.2, 16.2]
+2024-02-20 23:52:15Z - Scan target: scan_azel_with_nd_trigger, tags=azel, -65:26:05.4 57:04:02.4, no flux info
+2024-02-20 23:52:15Z - Slewed to scan_azel_with_nd_trigger at azel (-65.4, 57.1) deg
+2024-02-20 23:54:45Z - Azimuth scan extent [16.2, -16.2]
+2024-02-20 23:54:45Z - Scan target: scan_azel_with_nd_trigger, tags=azel, -65:26:05.4 57:04:02.4, no flux info
+2024-02-20 23:54:45Z - Slewed to scan_azel_with_nd_trigger at azel (-65.4, 57.1) deg
+2024-02-20 23:57:16Z - Azimuth scan extent [-16.2, 16.2]
+2024-02-20 23:57:16Z - Scan target: scan_azel_with_nd_trigger, tags=azel, -65:26:05.4 57:04:02.4, no flux info
+2024-02-20 23:57:16Z - Slewed to scan_azel_with_nd_trigger at azel (-65.4, 57.1) deg
+2024-02-20 23:59:47Z - Azimuth scan extent [16.2, -16.2]
+2024-02-20 23:59:47Z - Scan target: scan_azel_with_nd_trigger, tags=azel, -65:26:05.4 57:04:02.4, no flux info
+2024-02-20 23:59:47Z - Slewed to scan_azel_with_nd_trigger at azel (-65.4, 57.1) deg
+2024-02-21 00:02:17Z - Azimuth scan extent [-16.2, 16.2]
+2024-02-21 00:02:17Z - Scan target: scan_azel_with_nd_trigger, tags=azel, -65:26:05.4 57:04:02.4, no flux info
+2024-02-21 00:02:17Z - Slewed to scan_azel_with_nd_trigger at azel (-65.4, 57.1) deg
+2024-02-21 00:04:48Z - Azimuth scan extent [16.2, -16.2]
+2024-02-21 00:04:48Z - Scan target: scan_azel_with_nd_trigger, tags=azel, -65:26:05.4 57:04:02.4, no flux info
+2024-02-21 00:04:48Z - Slewed to scan_azel_with_nd_trigger at azel (-65.4, 57.1) deg
+2024-02-21 00:07:19Z - Azimuth scan extent [-16.2, 16.2]
+2024-02-21 00:07:19Z - Scan target: scan_azel_with_nd_trigger, tags=azel, -65:26:05.4 57:04:02.4, no flux info
+2024-02-21 00:07:19Z - Slewed to scan_azel_with_nd_trigger at azel (-65.4, 57.1) deg
+2024-02-21 00:09:49Z - Azimuth scan extent [16.2, -16.2]
+2024-02-21 00:09:49Z - Scan target: scan_azel_with_nd_trigger, tags=azel, -65:26:05.4 57:04:02.4, no flux info
+2024-02-21 00:09:49Z - Slewed to scan_azel_with_nd_trigger at azel (-65.4, 57.1) deg
+2024-02-21 00:12:20Z - Azimuth scan extent [-16.2, 16.2]
+2024-02-21 00:12:20Z - Scan target: scan_azel_with_nd_trigger, tags=azel, -65:26:05.4 57:04:02.4, no flux info
+2024-02-21 00:12:20Z - Slewed to scan_azel_with_nd_trigger at azel (-65.4, 57.1) deg
+2024-02-21 00:14:51Z - Azimuth scan extent [16.2, -16.2]
+2024-02-21 00:14:51Z - Scan target: scan_azel_with_nd_trigger, tags=azel, -65:26:05.4 57:04:02.4, no flux info
+2024-02-21 00:14:51Z - Slewed to scan_azel_with_nd_trigger at azel (-65.4, 57.1) deg
+2024-02-21 00:17:22Z - Azimuth scan extent [-16.2, 16.2]
+2024-02-21 00:17:22Z - Scan target: scan_azel_with_nd_trigger, tags=azel, -65:26:05.4 57:04:02.4, no flux info
+2024-02-21 00:17:22Z - Slewed to scan_azel_with_nd_trigger at azel (-65.4, 57.1) deg
+2024-02-21 00:19:52Z - Azimuth scan extent [16.2, -16.2]
+2024-02-21 00:19:52Z - Scan target: scan_azel_with_nd_trigger, tags=azel, -65:26:05.4 57:04:02.4, no flux info
+2024-02-21 00:19:52Z - Slewed to scan_azel_with_nd_trigger at azel (-65.4, 57.1) deg
+2024-02-21 00:22:23Z - Azimuth scan extent [-16.2, 16.2]
+2024-02-21 00:22:23Z - Scan target: scan_azel_with_nd_trigger, tags=azel, -65:26:05.4 57:04:02.4, no flux info
+2024-02-21 00:22:23Z - Slewed to scan_azel_with_nd_trigger at azel (-65.4, 57.1) deg
+2024-02-21 00:24:54Z - Azimuth scan extent [16.2, -16.2]
+2024-02-21 00:24:54Z - Scan target: scan_azel_with_nd_trigger, tags=azel, -65:26:05.4 57:04:02.4, no flux info
+2024-02-21 00:24:54Z - Slewed to scan_azel_with_nd_trigger at azel (-65.4, 57.1) deg
+2024-02-21 00:27:24Z - Azimuth scan extent [-16.2, 16.2]
+2024-02-21 00:27:24Z - Scan target: scan_azel_with_nd_trigger, tags=azel, -65:26:05.4 57:04:02.4, no flux info
+2024-02-21 00:27:24Z - Slewed to scan_azel_with_nd_trigger at azel (-65.4, 57.1) deg
+2024-02-21 00:29:55Z - Azimuth scan extent [16.2, -16.2]
+2024-02-21 00:29:55Z - Scan target: scan_azel_with_nd_trigger, tags=azel, -65:26:05.4 57:04:02.4, no flux info
+2024-02-21 00:29:55Z - Slewed to scan_azel_with_nd_trigger at azel (-65.4, 57.1) deg
+2024-02-21 00:32:26Z - Azimuth scan extent [-16.2, 16.2]
+2024-02-21 00:32:26Z - Scan target: scan_azel_with_nd_trigger, tags=azel, -65:26:05.4 57:04:02.4, no flux info
+2024-02-21 00:32:26Z - Slewed to scan_azel_with_nd_trigger at azel (-65.4, 57.1) deg
+2024-02-21 00:34:56Z - Azimuth scan extent [16.2, -16.2]
+2024-02-21 00:34:56Z - Scan target: scan_azel_with_nd_trigger, tags=azel, -65:26:05.4 57:04:02.4, no flux info
+2024-02-21 00:34:56Z - Slewed to scan_azel_with_nd_trigger at azel (-65.4, 57.1) deg
+2024-02-21 00:37:27Z - Azimuth scan extent [-16.2, 16.2]
+2024-02-21 00:37:27Z - Scan target: scan_azel_with_nd_trigger, tags=azel, -65:26:05.4 57:04:02.4, no flux info
+2024-02-21 00:37:27Z - Slewed to scan_azel_with_nd_trigger at azel (-65.4, 57.1) deg
+2024-02-21 00:39:58Z - Azimuth scan extent [16.2, -16.2]
+2024-02-21 00:39:58Z - Scan target: scan_azel_with_nd_trigger, tags=azel, -65:26:05.4 57:04:02.4, no flux info
+2024-02-21 00:39:58Z - Slewed to scan_azel_with_nd_trigger at azel (-65.4, 57.1) deg
+2024-02-21 00:42:28Z - Azimuth scan extent [-16.2, 16.2]
+2024-02-21 00:42:28Z - Scan target: scan_azel_with_nd_trigger, tags=azel, -65:26:05.4 57:04:02.4, no flux info
+2024-02-21 00:42:28Z - Slewed to scan_azel_with_nd_trigger at azel (-65.4, 57.1) deg
+2024-02-21 00:44:59Z - Azimuth scan extent [16.2, -16.2]
+2024-02-21 00:44:59Z - Scan target: scan_azel_with_nd_trigger, tags=azel, -65:26:05.4 57:04:02.4, no flux info
+2024-02-21 00:44:59Z - Slewed to scan_azel_with_nd_trigger at azel (-65.4, 57.1) deg
+2024-02-21 00:47:30Z - Azimuth scan extent [-16.2, 16.2]
+2024-02-21 00:47:30Z - Scan target: scan_azel_with_nd_trigger, tags=azel, -65:26:05.4 57:04:02.4, no flux info
+2024-02-21 00:47:30Z - Slewed to scan_azel_with_nd_trigger at azel (-65.4, 57.1) deg
+2024-02-21 00:50:00Z - Azimuth scan extent [16.2, -16.2]
+2024-02-21 00:50:00Z - Scan target: scan_azel_with_nd_trigger, tags=azel, -65:26:05.4 57:04:02.4, no flux info
+2024-02-21 00:50:00Z - Slewed to scan_azel_with_nd_trigger at azel (-65.4, 57.1) deg
+2024-02-21 00:52:31Z - Azimuth scan extent [-16.2, 16.2]
+2024-02-21 00:52:31Z - Scan target: scan_azel_with_nd_trigger, tags=azel, -65:26:05.4 57:04:02.4, no flux info
+2024-02-21 00:52:31Z - Slewed to scan_azel_with_nd_trigger at azel (-65.4, 57.1) deg
+2024-02-21 00:55:02Z - Azimuth scan extent [16.2, -16.2]
+2024-02-21 00:55:02Z - Scan target: scan_azel_with_nd_trigger, tags=azel, -65:26:05.4 57:04:02.4, no flux info
+2024-02-21 00:55:02Z - Slewed to scan_azel_with_nd_trigger at azel (-65.4, 57.1) deg
+2024-02-21 00:57:32Z - Azimuth scan extent [-16.2, 16.2]
+2024-02-21 00:57:32Z - Scan target: scan_azel_with_nd_trigger, tags=azel, -65:26:05.4 57:04:02.4, no flux info
+2024-02-21 00:57:32Z - Slewed to scan_azel_with_nd_trigger at azel (-65.4, 57.1) deg
+2024-02-21 01:00:03Z - Azimuth scan extent [16.2, -16.2]
+2024-02-21 01:00:03Z - Scan target: scan_azel_with_nd_trigger, tags=azel, -65:26:05.4 57:04:02.4, no flux info
+2024-02-21 01:00:03Z - Slewed to scan_azel_with_nd_trigger at azel (-65.4, 57.1) deg
+2024-02-21 01:02:34Z - Azimuth scan extent [-16.2, 16.2]
+2024-02-21 01:02:34Z - Scan target: scan_azel_with_nd_trigger, tags=azel, -65:26:05.4 57:04:02.4, no flux info
+2024-02-21 01:02:34Z - Slewed to scan_azel_with_nd_trigger at azel (-65.4, 57.1) deg
+2024-02-21 01:05:04Z - Azimuth scan extent [16.2, -16.2]
+2024-02-21 01:05:04Z - Scan target: scan_azel_with_nd_trigger, tags=azel, -65:26:05.4 57:04:02.4, no flux info
+2024-02-21 01:05:04Z - Slewed to scan_azel_with_nd_trigger at azel (-65.4, 57.1) deg
+2024-02-21 01:07:35Z - Azimuth scan extent [-16.2, 16.2]
+2024-02-21 01:07:35Z - Scan target: scan_azel_with_nd_trigger, tags=azel, -65:26:05.4 57:04:02.4, no flux info
+2024-02-21 01:07:35Z - Slewed to scan_azel_with_nd_trigger at azel (-65.4, 57.1) deg
+2024-02-21 01:10:06Z - Azimuth scan extent [16.2, -16.2]
+2024-02-21 01:10:06Z - Scan target: scan_azel_with_nd_trigger, tags=azel, -65:26:05.4 57:04:02.4, no flux info
+2024-02-21 01:10:06Z - Slewed to scan_azel_with_nd_trigger at azel (-65.4, 57.1) deg
+2024-02-21 01:12:36Z - Azimuth scan extent [-16.2, 16.2]
+2024-02-21 01:12:36Z - Scan target: scan_azel_with_nd_trigger, tags=azel, -65:26:05.4 57:04:02.4, no flux info
+2024-02-21 01:12:36Z - Slewed to scan_azel_with_nd_trigger at azel (-65.4, 57.1) deg
+2024-02-21 01:15:07Z - Azimuth scan extent [16.2, -16.2]
+2024-02-21 01:15:07Z - Scan target: scan_azel_with_nd_trigger, tags=azel, -65:26:05.4 57:04:02.4, no flux info
+2024-02-21 01:15:07Z - Slewed to scan_azel_with_nd_trigger at azel (-65.4, 57.1) deg
+2024-02-21 01:17:38Z - Azimuth scan extent [-16.2, 16.2]
+2024-02-21 01:17:38Z - Scan target: scan_azel_with_nd_trigger, tags=azel, -65:26:05.4 57:04:02.4, no flux info
+2024-02-21 01:17:38Z - Slewed to scan_azel_with_nd_trigger at azel (-65.4, 57.1) deg
+2024-02-21 01:20:08Z - Azimuth scan extent [16.2, -16.2]
+2024-02-21 01:20:08Z - Scan target: scan_azel_with_nd_trigger, tags=azel, -65:26:05.4 57:04:02.4, no flux info
+2024-02-21 01:20:08Z - Slewed to scan_azel_with_nd_trigger at azel (-65.4, 57.1) deg
+2024-02-21 01:22:39Z - Scan completed - 45 scan lines
+2024-02-21 01:22:39Z - Initialising Track target 3C273_u0.8 for 70.0 sec
+2024-02-21 01:23:18Z - Slewed to 3C273_u0.8 at azel (351.0, 56.2) deg
+2024-02-21 01:24:28Z - Tracked 3C273_u0.8 for 70 seconds
+2024-02-21 01:24:28Z - Initialising Track target 3C273 for 70.0 sec
+2024-02-21 01:24:34Z - Slewed to 3C273 at azel (350.0, 57.0) deg
+2024-02-21 01:25:44Z - Tracked 3C273 for 70 seconds
+2024-02-21 01:25:44Z - Initialising Track target 3C273_d0.8 for 70.0 sec
+2024-02-21 01:25:49Z - Slewed to 3C273_d0.8 at azel (349.2, 57.7) deg
+2024-02-21 01:26:59Z - Tracked 3C273_d0.8 for 70 seconds
+2024-02-21 01:26:59Z - Initialising Track target 3C273 for 70.0 sec
+2024-02-21 01:27:05Z - Slewed to 3C273 at azel (348.8, 56.9) deg
+2024-02-21 01:28:15Z - Tracked 3C273 for 70 seconds
+2024-02-21 01:28:15Z - Initialising Track target 3C273_r0.8 for 70.0 sec
+2024-02-21 01:28:21Z - Slewed to 3C273_r0.8 at azel (349.7, 56.9) deg
+2024-02-21 01:29:31Z - Tracked 3C273_r0.8 for 70 seconds
+2024-02-21 01:29:31Z - Initialising Track target 3C273 for 70.0 sec
+2024-02-21 01:29:37Z - Slewed to 3C273 at azel (347.7, 56.8) deg
+2024-02-21 01:30:47Z - Tracked 3C273 for 70 seconds
+2024-02-21 01:30:47Z - Initialising Track target 3C273_l0.8 for 70.0 sec
+2024-02-21 01:30:52Z - Slewed to 3C273_l0.8 at azel (345.7, 56.5) deg
+2024-02-21 01:32:02Z - Tracked 3C273_l0.8 for 70 seconds
+2024-02-21 01:32:02Z - Initialising Track gaincal J0828-3731 for 120.0 sec
+2024-02-21 01:33:04Z - Slewed to J0828-3731 at azel (243.2, 34.8) deg
+2024-02-21 01:35:04Z - Tracked J0828-3731 for 120 seconds
+2024-02-21 01:35:04Z - Target J0408-6545 below 15 deg horizon, continuing
+2024-02-21 01:35:04Z - Initialising Track polcal J1130-1449 for 300.0 sec
+2024-02-21 01:35:46Z - Slewed to J1130-1449 at azel (301.8, 63.8) deg
+2024-02-21 01:40:46Z - Tracked J1130-1449 for 300 seconds
+2024-02-21 01:40:46Z - Observation list completed - ending observation
+2024-02-21 01:40:46Z - Observation loop statistics
+2024-02-21 01:40:46Z - Single run through observation target list
+2024-02-21 01:40:46Z - Total observation time 8746.24 sec (145.77 min)
+2024-02-21 01:40:46Z - Targets observed :
+2024-02-21 01:40:46Z - 3C273 observed for 420.0 sec
+2024-02-21 01:40:46Z - 3C273_d0.8 observed for 140.0 sec
+2024-02-21 01:40:46Z - 3C273_l0.8 observed for 140.0 sec
+2024-02-21 01:40:46Z - 3C273_r0.8 observed for 140.0 sec
+2024-02-21 01:40:46Z - 3C273_u0.8 observed for 140.0 sec
+2024-02-21 01:40:46Z - J0408-6545 observed for 0.0 sec
+2024-02-21 01:40:46Z - J0828-3731 observed for 240.0 sec
+2024-02-21 01:40:46Z - J1130-1449 observed for 300.0 sec
+2024-02-21 01:40:46Z - scan_azel_with_nd_trigger observed for 0.0 sec
+2024-02-21 01:40:46Z - Observation clean up
+2024-02-21 01:40:46Z - Returning telescope to startup state
+2024-02-21 01:40:46Z - Report: noise-diode off at 1708479651.237958

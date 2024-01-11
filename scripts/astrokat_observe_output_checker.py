@@ -36,7 +36,7 @@ def get_tod_from_simulation_output(simulation_output: list[str], reference_anten
             extent_str = line_.split('extent ')[1][:-1]
             scan_extent_a, scan_extent_b = np.asarray(extent_str.strip('[').strip(']').split(', '), float)
         elif 'Slewed to scan_azel_with_nd_trigger' in line_:
-            if first_time:
+            if first_time or scan_extent_b is None:
                 first_time = False
                 continue
             time_ = line_.split(' - ')[0]
@@ -48,6 +48,7 @@ def get_tod_from_simulation_output(simulation_output: list[str], reference_anten
             dec_swing = []
             observing_time = Time(time_, scale='utc')
             # alt_az_frame = AltAz(location=location_m000, obstime=observing_time)
+            print(az, scan_extent_a, scan_extent_b)
             for azz, off_time in zip(np.linspace(az + scan_extent_a, az + scan_extent_b),
                                      np.linspace(0, duration)):
                 target = katpoint.Target("point, azel , %f ,%f" % (azz, el))
@@ -68,43 +69,43 @@ def get_tod_from_simulation_output(simulation_output: list[str], reference_anten
 
 def main(output_file_paths: list[str],
          labels: list[str]):
-    desi_1_rising_corners = dict(
-        ra_min=140.23,
-        ra_max=154.00,
-        dec_min=-8.85,
-        dec_max=5.16,
-    )
+    # desi_1_rising_corners = dict(
+    #     ra_min=140.23,
+    #     ra_max=154.00,
+    #     dec_min=-8.85,
+    #     dec_max=5.16,
+    # )
 
-    desi_1_setting_corners = dict(
-        ra_min=141.99,
-        ra_max=155.99,
-        dec_min=-8.83,
-        dec_max=5.53,
-    )
+    # desi_1_setting_corners = dict(
+    #     ra_min=141.99,
+    #     ra_max=155.99,
+    #     dec_min=-8.83,
+    #     dec_max=5.53,
+    # )
 
-    desi_2_rising_corners = dict(
-        ra_min=174.01,
-        ra_max=160.22,
-        dec_min=-8.85,
-        dec_max=5.45,
-    )
+    # desi_2_rising_corners = dict(
+    #     ra_min=174.01,
+    #     ra_max=160.22,
+    #     dec_min=-8.85,
+    #     dec_max=5.45,
+    # )
 
-    desi_2_setting_corners = dict(
-        ra_max=175.98,
-        ra_min=161.99,
-        dec_min=-8.85,
-        dec_max=5.54,
-    )
-    default_colours = ['#1f77b4',
-                       '#ff7f0e',
-                       '#2ca02c',
-                       '#d62728',
-                       '#9467bd',
-                       '#8c564b',
-                       '#e377c2',
-                       '#7f7f7f',
-                       '#bcbd22',
-                       '#17becf']
+    # desi_2_setting_corners = dict(
+    #     ra_max=175.98,
+    #     ra_min=161.99,
+    #     dec_min=-8.85,
+    #     dec_max=5.54,
+    # )
+    # default_colours = ['#1f77b4',
+    #                    '#ff7f0e',
+    #                    '#2ca02c',
+    #                    '#d62728',
+    #                    '#9467bd',
+    #                    '#8c564b',
+    #                    '#e377c2',
+    #                    '#7f7f7f',
+    #                    '#bcbd22',
+    #                    '#17becf']
 
     ref_antenna = katpoint.Antenna(MEERKAT_REFERENCE_LOCATION)
 
@@ -193,8 +194,18 @@ if __name__ == '__main__':
     # main(['/home/amadeus/git/astrokat-helper/output/desi_2_rising_observe.txt',
     #       '/home/amadeus/git/astrokat-helper/output/desi_2_setting_observe.txt'],
     #      ['desi 2 rising', 'desi 2 setting'])
+    # main(['/home/amadeus/git/astrokat-helper/output/patch_1_rising.txt',
+    #       '/home/amadeus/git/astrokat-helper/output/patch_2_rising.txt',
+    #       '/home/amadeus/git/astrokat-helper/output/patch_1_setting.txt',
+    #       '/home/amadeus/git/astrokat-helper/output/patch_2_setting.txt'],
+    #      ['1R', '2R', '1S', '2S'])
+    # main(['/home/amadeus/git/astrokat-helper/output/patch_1_rising_05ra.txt',
+    #       '/home/amadeus/git/astrokat-helper/output/patch_2_rising_05ra.txt',
+    #       '/home/amadeus/git/astrokat-helper/output/patch_1_setting_05ra.txt',
+    #       '/home/amadeus/git/astrokat-helper/output/patch_2_setting_05ra.txt'],
+    #      ['1R05RA', '2R05RA', '1S05RA', '2S05RA'])
     main(['/home/amadeus/git/astrokat-helper/output/patch_1_rising.txt',
           '/home/amadeus/git/astrokat-helper/output/patch_2_rising.txt',
-          '/home/amadeus/git/astrokat-helper/output/patch_1_setting.txt',
-          '/home/amadeus/git/astrokat-helper/output/patch_2_setting.txt'],
-         ['1R', '2R', '1S', '2S'])
+          '/home/amadeus/git/astrokat-helper/output/patch_1_setting_no_initial_calibrators.txt',
+          '/home/amadeus/git/astrokat-helper/output/patch_2_setting_no_initial_calibrators.txt'],
+         ['1R', '2R', '1SNIC', '2SNIC'])
