@@ -1,0 +1,18 @@
+
+Observation Table for 2024/1/30 00:00:00 (UTC)
+Times listed in UTC for target rise and set times
+Target visible when above 35.0 degrees
+Sources         Class                           RA              Decl            Rise Time       Set Time        Separation      Notes           
+[0m3C273           radec target                    12:29:06.70     2:03:08.6       23:19:30        05:31:05        123.23          Separation from Sun
+[0m[0mHydraA          radec target                    9:18:05.67      -12:05:44.0     19:29:57        02:59:30        148.98                          
+[0m[0mPictorA         radec target                    5:19:49.72      -45:46:43.8     14:38:27        23:54:51        100.97                          
+[0m[0mcorner_1        radec target                    9:20:00.00      3:00:00.0       20:14:18        02:19:08        162.97                          
+[0m[0mcorner_2        radec target                    10:12:00.00     3:00:00.0       21:06:06        03:11:03        154.30                          
+[0m[0mcorner_3        radec target                    10:12:00.00     13:00:00.0      21:49:25        02:27:49        158.87                          
+[0m[0mcorner_4        radec target                    9:20:00.00      13:00:00.0      20:57:40        01:35:54        170.57                          
+[0m[93mJ0408-6545      radec bpcal fluxcal             4:08:20.38      -65:45:09.1     13:16:49        22:52:54        87.81 ***       Separation from corner_1
+[0m[93mJ0521+1638      radec polcal                    5:21:09.89      16:38:22.1      17:22:47        21:14:33        60.16 ***                       
+[0m[93mJ0825-5010      radec bpcal fluxcal             8:25:26.87      -50:10:38.5     17:39:25        03:04:10        54.46 ***                       
+[0m[0mJ1008+0730      radec gaincal bpcal             10:08:00.02     7:30:16.6       21:19:19        02:49:53        12.77                           
+[0m[93mJ1130-1449      radec polcal                    11:30:07.05     -14:49:27.4     21:35:36        05:17:17        36.82 ***                       
+[0m

@@ -1,0 +1,63 @@
+2024-01-31 11:57:28Z - Setting up telescope for observation
+2024-01-31 11:57:28Z - Observation start up
+2024-01-31 11:57:28Z - Running astrokat version - 0.1.dev781+head.e53d437
+2024-01-31 11:57:28Z - Skipping instrument checks - approved_schedule does not exist
+2024-01-31 11:57:28Z - Report: noise-diode off at 1706702253.9510732
+2024-01-31 11:57:28Z - Found 7 target(s): 0 from 0 catalogue(s), 0 from default catalogue and 9 as target string(s)
+2024-07-02 17:20:00Z - FLUX calibrators are ['J1150-0023']
+2024-07-02 17:20:00Z - BP calibrators are ['J1150-0023']
+2024-07-02 17:20:00Z - DELAY calibrators are ['J1150-0023']
+2024-07-02 17:20:00Z - GAIN calibrators are ['J1239-1023']
+2024-07-02 17:20:00Z - Observation targets are ['3C353_u0.8', '3C353', '3C353_d0.8', '3C353_r0.8', '3C353_l0.8']
+2024-07-02 17:20:00Z - Set noise diode period to multiple of correlator dump period: cycle length = 19.5 [sec]
+2024-07-02 17:20:00Z - Request: Set noise diode pattern to activate at 1719940812.0 (includes 12.0 sec lead time)
+2024-07-02 17:20:00Z - Antennas found in subarray, setting ND: m011,m022,m033,m044
+2024-07-02 17:20:00Z - Repeat noise diode pattern every 19.5 sec, with 0.585 sec on and apply pattern to ['m011', 'm022', 'm033', 'm044']
+2024-07-02 17:20:12Z - Report: Switch noise-diode pattern on at 1719940812.0
+2024-07-02 17:20:12Z - Waiting for observation setup
+2024-07-02 17:20:15Z - INIT
+2024-07-02 17:20:15Z - Slewing to first target
+2024-07-02 17:21:00Z - Slewed to 3C353_u0.8 at azel (72.3, 27.5) deg
+2024-07-02 17:21:00Z - Tracked 3C353_u0.8 for 0 seconds
+2024-07-02 17:21:00Z - Initialising Track target 3C353_u0.8 for 70.0 sec
+2024-07-02 17:21:00Z - Slewed to 3C353_u0.8 at azel (72.2, 27.6) deg
+2024-07-02 17:22:10Z - Tracked 3C353_u0.8 for 70 seconds
+2024-07-02 17:22:10Z - Initialising Track target 3C353 for 70.0 sec
+2024-07-02 17:22:15Z - Slewed to 3C353 at azel (72.7, 28.3) deg
+2024-07-02 17:23:25Z - Tracked 3C353 for 70 seconds
+2024-07-02 17:23:25Z - Initialising Track target 3C353_d0.8 for 70.0 sec
+2024-07-02 17:23:29Z - Slewed to 3C353_d0.8 at azel (73.3, 29.0) deg
+2024-07-02 17:24:39Z - Tracked 3C353_d0.8 for 70 seconds
+2024-07-02 17:24:39Z - Initialising Track target 3C353 for 70.0 sec
+2024-07-02 17:24:44Z - Slewed to 3C353 at azel (72.3, 28.8) deg
+2024-07-02 17:25:54Z - Tracked 3C353 for 70 seconds
+2024-07-02 17:25:54Z - Initialising Track target 3C353_r0.8 for 70.0 sec
+2024-07-02 17:26:00Z - Slewed to 3C353_r0.8 at azel (72.6, 28.4) deg
+2024-07-02 17:27:10Z - Tracked 3C353_r0.8 for 70 seconds
+2024-07-02 17:27:10Z - Initialising Track target 3C353 for 70.0 sec
+2024-07-02 17:27:16Z - Slewed to 3C353 at azel (71.9, 29.4) deg
+2024-07-02 17:28:26Z - Tracked 3C353 for 70 seconds
+2024-07-02 17:28:26Z - Initialising Track target 3C353_l0.8 for 70.0 sec
+2024-07-02 17:28:31Z - Slewed to 3C353_l0.8 at azel (71.2, 30.3) deg
+2024-07-02 17:29:41Z - Tracked 3C353_l0.8 for 70 seconds
+2024-07-02 17:29:41Z - Initialising Track gaincal J1239-1023 for 120.0 sec
+2024-07-02 17:30:46Z - Slewed to J1239-1023 at azel (322.5, 65.5) deg
+2024-07-02 17:32:46Z - Tracked J1239-1023 for 120 seconds
+2024-07-02 17:32:46Z - Initialising Track fluxcal, bpcal, delaycal J1150-0023 for 300.0 sec
+2024-07-02 17:33:13Z - Slewed to J1150-0023 at azel (313.5, 49.9) deg
+2024-07-02 17:38:13Z - Tracked J1150-0023 for 300 seconds
+2024-07-02 17:38:13Z - Observation list completed - ending observation
+2024-07-02 17:38:13Z - Observation loop statistics
+2024-07-02 17:38:13Z - Single run through observation target list
+2024-07-02 17:38:13Z - Total observation time 1093.92 sec (18.23 min)
+2024-07-02 17:38:13Z - Targets observed :
+2024-07-02 17:38:13Z - 3C353 observed for 210.0 sec
+2024-07-02 17:38:13Z - 3C353_d0.8 observed for 70.0 sec
+2024-07-02 17:38:13Z - 3C353_l0.8 observed for 70.0 sec
+2024-07-02 17:38:13Z - 3C353_r0.8 observed for 70.0 sec
+2024-07-02 17:38:13Z - 3C353_u0.8 observed for 70.0 sec
+2024-07-02 17:38:13Z - J1150-0023 observed for 300.0 sec
+2024-07-02 17:38:13Z - J1239-1023 observed for 120.0 sec
+2024-07-02 17:38:13Z - Observation clean up
+2024-07-02 17:38:13Z - Returning telescope to startup state
+2024-07-02 17:38:13Z - Report: noise-diode off at 1719941898.9156148
