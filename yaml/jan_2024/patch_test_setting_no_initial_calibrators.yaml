@@ -1,6 +1,6 @@
 durations:
-  start_time: 2024-01-29 23:25:00     # This is the start time so that you can test these on using astrokat
-  # start_time: 2024-01-30 01:05:00     # This is the start time so that you can test these on using astrokat
+  # start_time: 2024-01-29 23:25:00     # This is the start time so that you can test these on using astrokat
+  start_time: 2024-01-30 01:20:00     # This is the start time so that you can test these on using astrokat
 instrument:
   integration_time: 2
 # set noise diode pattern to fire every 20 seconds and only be on for 0.6s
@@ -25,16 +25,8 @@ scan:
 
 horizon: 15
 observation_loop:
-  - LST:  09:22-11:10   # The valid range when this observation can be started. This includes the calibration parts.
+  - LST:  09:22-11:25   # The valid range when this observation can be started. This includes the calibration parts.
     target_list:
-      - name=J1008+0730,    radec=10:08:00.02 7:30:16.6, tags=gaincal, duration=120
-      - name=3C273_u0.8,  radec= 12:29:6.69960 02:51:8.59680,     tags=target, type=track, duration=70.0
-      - name=3C273,  radec= 12:29:6.6996 02:03:8.5968,     tags=target, type=track, duration=70.0
-      - name=3C273_d0.8,  radec= 12:29:6.69960 01:15:8.59680,     tags=target, type=track, duration=70.0
-      - name=3C273,  radec= 12:29:6.6996 02:03:8.5968,     tags=target, type=track, duration=70.0
-      - name=3C273_r0.8,  radec= 12:32:18.82283 02:03:7.87628,     tags=target, type=track, duration=70.0
-      - name=3C273,  radec= 12:29:6.6996 02:03:8.5968,     tags=target, type=track, duration=70.0
-      - name=3C273_l0.8,  radec= 12:25:54.57637 02:03:7.87628,     tags=target, type=track, duration=70.0
       - name=scan_azel_with_nd_trigger, radec= 9:46:00.0 8:00:00.0, duration=0, tags=target, type=reversescan
       - name=3C273_u0.8,  radec= 12:29:6.69960 02:51:8.59680,     tags=target, type=track, duration=70.0
       - name=3C273,  radec= 12:29:6.6996 02:03:8.5968,     tags=target, type=track, duration=70.0
@@ -44,5 +36,3 @@ observation_loop:
       - name=3C273,  radec= 12:29:6.6996 02:03:8.5968,     tags=target, type=track, duration=70.0
       - name=3C273_l0.8,  radec= 12:25:54.57637 02:03:7.87628,     tags=target, type=track, duration=70.0
       - name=J1008+0730,    radec=10:08:00.02 7:30:16.6, tags=gaincal, duration=120
-      - name=J0825-5010, radec=8:25:26.87 -50:10:38.5, tags=fluxcal bpcal delaycal, duration=300
-      - name=J1130-1449, radec=11:30:07.05 -14:49:27.4, tags=polcal, duration=300  # once per night
