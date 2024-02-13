@@ -209,10 +209,19 @@ if __name__ == '__main__':
     #       '/home/amadeus/git/astrokat-helper/output/patch_1_setting_no_initial_calibrators.txt',
     #       '/home/amadeus/git/astrokat-helper/output/patch_2_setting_no_initial_calibrators.txt'],
     #      ['1R', '2R', '1SNIC', '2SNIC'])
-    main(['/home/amadeus/git/astrokat-helper/output/patch_test_setting.txt',
-          '/home/amadeus/git/astrokat-helper/output/patch_test_rising.txt',
+    # main(['/home/amadeus/git/astrokat-helper/output/patch_test_setting_05ra.txt',
+    #       '/home/amadeus/git/astrokat-helper/output/patch_test_rising_05ra.txt',
+    #       '/home/amadeus/git/astrokat-helper/output/patch_1_rising.txt',
+    #       '/home/amadeus/git/astrokat-helper/output/patch_2_rising.txt',
+    #       '/home/amadeus/git/astrokat-helper/output/patch_1_setting.txt',
+    #       '/home/amadeus/git/astrokat-helper/output/patch_2_setting.txt'],
+    #      ['TS05RA', 'TR05RA', '1R', '2R', '1S', '2S'])
+    main(['/home/amadeus/git/astrokat-helper/output/patch_3_setting.txt',
+          '/home/amadeus/git/astrokat-helper/output/patch_3_rising.txt',
+          '/home/amadeus/git/astrokat-helper/output/patch_4_rising.txt',
+          '/home/amadeus/git/astrokat-helper/output/patch_4_setting.txt',
           '/home/amadeus/git/astrokat-helper/output/patch_1_rising.txt',
           '/home/amadeus/git/astrokat-helper/output/patch_2_rising.txt',
           '/home/amadeus/git/astrokat-helper/output/patch_1_setting.txt',
           '/home/amadeus/git/astrokat-helper/output/patch_2_setting.txt'],
-         ['TS', 'TR', '1R', '2R', '1S', '2S'])
+         ['3S', '3R', '4R', '4S', '1R', '2R', '1S', '2S'])
