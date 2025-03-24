@@ -348,69 +348,32 @@ class WhenIsPatchObservable:
 def main():
     """ Run the `run` method with arguments from the command line. """
     
-#    print('Starting run', flush = True)
-
     cli = argparse.ArgumentParser()
     cli.add_argument(
-        "--corners",
-        nargs=4,  # 4 more values expected => creates a list
+        "--azel",
+        nargs=2,  # 4 more values expected => creates a list
         type=float,
-        help='provide right ascension min, max and declination min, max values as degree floats',
+        help='provide start azimuth and elevation as degrees',
         required=True
     )
     cli.add_argument(
-        "--date",
-        nargs=1,
-        type=str,
-        help='provide starting date as `string`, e.g. "2023-12-24"',
-        default=None
-    )
-    cli.add_argument(
-        "--buffer",
+        "--duration",
         nargs=1,
         type=int,
-        help='provide integer buffer from sunrise and sunset in minutes',
+        help='provide duration of drift scan observation in seconds',
         required=True
-    )
-    cli.add_argument(
-        "--min_elevation",
-        nargs=1,
-        type=float,
-        help='provide min elevation in degrees',
-        default=[35]
-    )
-    cli.add_argument(
-        "--max_elevation",
-        nargs=1,
-        type=float,
-        help='provide max elevation in degrees',
-        default=[50]
-    )
-    cli.add_argument(
-        "--days",
-        nargs=1,
-        type=int,
-        help='provide number of days from input date to consider',
-        default=[366]
-    )
-    cli.add_argument(
-        "--plot_dir",
-        nargs=1,
-        type=str,
-        help='',
-        default=None,
     )
     args = cli.parse_args()
+
+
 
     if args.date is None:
         from_date = None
     else:
         from_date = args.date[0]
-    if args.plot_dir is None:
-        plot_dir = None
-    else:
-        plot_dir = args.plot_dir[0]
-    when_is_patch_observable = WhenIsPatchObservable(
+        
+    
+        when_is_patch_observable = WhenIsPatchObservable(
         point_list=args.corners,
         from_date=from_date,
         buffer=args.buffer[0],
