@@ -16,83 +16,33 @@ class SatellitePlotter:
     A class for plotting satellite positions based on celestial coordinates.
     """
     
-    def __init__(self, min_freq=None, max_freq=None):
+    def __init__(self, tle_url="https://celestrak.org/NORAD/elements/gp.php?GROUP=active&FORMAT=tle", satnogs_url="https://db.satnogs.org/api/transmitters/"):
         """
         Initialize the SatellitePlotter with optional frequency range for filtering.
         
         Parameters:
         -----------
-        min_freq : float, optional
-            Minimum frequency in MHz (default: None, no filtering)
-        max_freq : float, optional
-            Maximum frequency in MHz (default: None, no filtering)
+        tle_url: str, optional
+            url to access TLE data via Celestrak API
+        satnogs_url: str, optional
+            url to access frequency data via SATNOGS API
         """
-        self.min_freq = min_freq
-        self.max_freq = max_freq
-        self.satnogs_data = None
+        self.tle_url = tle_url
+        self.satnogs_url = satnogs_url
         self.tle_list = None
-        self.current_time = None
-        # Store satellite positions as a dictionary with time keys
-        self.position_cache = {}
+        self.satnogs_data = None
+        
+        self.fetch_tle_data()
+        self.fetch_satnogs_catalog()
     
-    def fetch_satnogs_catalog(self):
-        """
-        Fetch the full SatNOGS catalog from the API.
-        
-        Returns:
-        --------
-        dict
-            The SatNOGS catalog data
-        """
-        logger.info("Fetching SatNOGS catalog...")
-        SATNOGS_API_URL = "https://db.satnogs.org/api/transmitters/"
-        response = requests.get(SATNOGS_API_URL)
-        if response.status_code != 200:
-            logger.error("Error fetching data from SatNOGS API")
-            return None
-        data = response.json()
-        if not data:
-            logger.error("No data found in SatNOGS API")
-            return None
-        self.satnogs_data = data
-        return data
     
-    def get_filtered_norad_ids(self):
-        """
-        Get a set of NORAD IDs that match the frequency filter criteria.
-        
-        Returns:
-        --------
-        set
-            Set of NORAD IDs within the frequency range
-        """
-        if self.satnogs_data is None:
-            self.fetch_satnogs_catalog()
-            
-        if self.min_freq is None or self.max_freq is None:
-            # If no frequency filter is specified, don't filter
-            return set()
-            
-        min_freq_hz = self.min_freq * 1e6
-        max_freq_hz = self.max_freq * 1e6
-        
-        filtered_ids = {
-            tx["norad_cat_id"]
-            for tx in self.satnogs_data
-            if tx.get("downlink_low") and min_freq_hz <= tx["downlink_low"] <= max_freq_hz 
-               and tx.get("norad_cat_id") and tx.get("status") == "active"
-        }
-        
-        logger.info(f"Found {len(filtered_ids)} satellites in frequency range {self.min_freq}-{self.max_freq} MHz")
-        return filtered_ids
-    
-    def fetch_tle_data(self, url="https://celestrak.org/NORAD/elements/gp.php?GROUP=active&FORMAT=tle"):
+    def fetch_tle_data(self, url=None):
         """
         Fetch TLE data from Celestrak.
         
         Parameters:
         -----------
-        url : str
+        url : str, optional
             URL for the TLE data (default: Celestrak active satellites)
             GNSS: https://celestrak.org/NORAD/elements/gp.php?GROUP=gnss&FORMAT=tle
             GPS: https://celestrak.org/NORAD/elements/gp.php?GROUP=gps-ops&FORMAT=tle
@@ -108,7 +58,9 @@ class SatellitePlotter:
             List of TLE data tuples (name, line1, line2)
         """
         logger.info("Fetching TLE data from Celestrak...")
-        response = requests.get(url)
+        if url:
+            self.tle_url=url
+        response = requests.get(self.tle_url)
         if response.status_code != 200:
             logger.error("Error fetching data from Celestrak")
             return None
@@ -117,8 +69,60 @@ class SatellitePlotter:
                          for i in range(0, len(lines), 3)]
         logger.info(f"Retrieved {len(self.tle_list)} TLEs")
         return self.tle_list
+
+
+    def fetch_satnogs_catalog(self, url=None):
+        """
+        Fetch the full SatNOGS catalog from the API.
+        
+        Returns:
+        --------
+        dict
+            The SatNOGS catalog data
+        """
+        logger.info("Fetching SatNOGS catalog...")
+        if url:
+            self.tle_url=url
+        response = requests.get(self.satnogs_url)
+        if response.status_code != 200:
+            logger.error("Error fetching data from SatNOGS API")
+            return None
+        data = response.json()
+        if not data:
+            logger.error("No data found in SatNOGS API")
+            return None
+        self.satnogs_data = data
+        logger.info(f"Retrieved {len(data)} SatNOGS Sats")
+        return data
     
-    def compute_positions(self, time=None, frequency_filter=False):
+    def filter_freq_ids(self, min_freq, max_freq):
+        """
+        Get a set of NORAD IDs that match the frequency filter criteria.
+        Parameters:
+        -----------
+        min_freq: float
+            Minimum satellite frequency
+        max_freq: float
+            Maximum satellite frequency
+        Returns:
+        --------
+        set
+            Set of NORAD IDs within the frequency range
+        """                     
+        min_freq_hz = min_freq * 1e6
+        max_freq_hz = max_freq * 1e6
+        
+        filtered_ids = {
+            tx["norad_cat_id"]
+            for tx in self.satnogs_data
+            if tx.get("downlink_low") and min_freq_hz <= tx["downlink_low"] <= max_freq_hz 
+               and tx.get("norad_cat_id") and tx.get("status") == "active"
+        }
+        
+        logger.info(f"Found {len(filtered_ids)} satellites in frequency range {min_freq}-{max_freq} MHz")
+        return filtered_ids
+        
+    def compute_positions(self, time=None, min_freq=None, max_freq=None):
         """
         Compute equatorial positions (RA/DEC) of satellites.
         
@@ -126,34 +130,28 @@ class SatellitePlotter:
         -----------
         time : datetime, optional
             Time for position calculation (default: current UTC time)
-        frequency_filter : bool, optional
-            Whether to apply frequency filtering (default: False)
-            
+        min_freq: float, optional
+            Minimum satellite frequency
+        max_freq: float, optional
+            Maximum satellite frequency     
+                   
         Returns:
         --------
         list
             Positions of satellites with RA/DEC in degrees
         """
-        if self.tle_list is None:
-            self.fetch_tle_data()
-                    
+        if (min_freq is None and max_freq is not None) or (min_freq is not None and max_freq is None):
+            raise TypeError("Function must have both minimum and maximum frequency or none")
+
         if time is None:
             time = datetime.now(timezone.utc)
         elif time.tzinfo is None:
             # If time has no timezone, assume UTC
             time = time.replace(tzinfo=timezone.utc)
-        
-        # Cache key is a combination of the time and filter setting
-        cache_key = (time, frequency_filter)
-        
-        # Check if we already computed positions for this time and filter setting
-        if cache_key in self.position_cache:
-            return self.position_cache[cache_key]
-        
-        self.current_time = time
-        
+                        
         # Get filtered NORAD IDs if needed
-        filtered_norad_ids = self.get_filtered_norad_ids() if frequency_filter else set()
+        if min_freq:
+            filtered_norad_ids = self.filter_freq_ids(min_freq, max_freq)
         
         logger.info(f"Computing positions for satellites at {time}")
         ts = load.timescale()
@@ -170,7 +168,7 @@ class SatellitePlotter:
                     norad_id = None
                 
                 # Skip if we're filtering by frequency and this satellite doesn't match
-                if frequency_filter and filtered_norad_ids and norad_id not in filtered_norad_ids:
+                if min_freq and filtered_norad_ids and norad_id not in filtered_norad_ids:
                     continue
                 
                 # Compute position
@@ -194,15 +192,14 @@ class SatellitePlotter:
                 })
             except Exception as e:
                 logger.warning(f"Error computing position for {name}: {e}")
-        
-        # Cache the results
-        self.position_cache[cache_key] = positions
-        
-        filter_type = "frequency-filtered" if frequency_filter else "all"
-        logger.info(f"Computed positions for {len(positions)} {filter_type} satellites at {time}")
+                
+        if min_freq:
+            logger.info(f"Computed positions for {len(positions)} frequency-filtered satellites at {time}")
+        else:
+            logger.info(f"Computed positions for {len(positions)} satellites at {time}")
         return positions
     
-    def filter_by_box(self, ra_min, ra_max, dec_min, dec_max, positions=None):
+    def filter_by_box(self, positions, ra_min, ra_max, dec_min, dec_max):
         """
         Filter satellites within a rectangular box defined by RA/DEC boundaries.
         
@@ -216,24 +213,14 @@ class SatellitePlotter:
             Minimum Declination in degrees (-90 to 90)
         dec_max : float
             Maximum Declination in degrees (-90 to 90)
-        positions : list, optional
-            List of satellite positions to filter (default: None, uses last computed positions)
+        positions : list
+            List of satellite positions to filter
             
         Returns:
         --------
         list
             Filtered satellite positions
-        """
-        if positions is None:
-            # Use the most recently computed positions or compute new ones
-            if not self.position_cache:
-                positions = self.compute_positions()
-            else:
-                # Use the most recent time from the cache
-                latest_time = sorted(self.position_cache.keys())[-1][0]
-                latest_filter = sorted(self.position_cache.keys())[-1][1]
-                positions = self.position_cache[(latest_time, latest_filter)]
-            
+        """                            
         # Validate input coordinates
         if ra_min < 0 or ra_max > 360 or dec_min < -90 or dec_max > 90:
             logger.error("Invalid RA/DEC values. RA should be between 0-360 degrees, DEC between -90° and 90°.")
@@ -256,7 +243,7 @@ class SatellitePlotter:
         logger.info(f"Found {len(filtered_satellites)} satellites within box: RA=[{ra_min}, {ra_max}], Dec=[{dec_min}, {dec_max}]")
         return filtered_satellites
     
-    def filter_by_position(self, target_ra, target_dec, radius_deg=10, positions=None):
+    def filter_by_radius(self, positions, target_ra, target_dec, radius_deg=10):
         """
         Filters satellites within a given angular radius from target RA/DEC.
         
@@ -268,23 +255,14 @@ class SatellitePlotter:
             Target Declination in degrees (-90 to 90)
         radius_deg : float
             Search radius in degrees (default: 10)
-        positions : list, optional
-            List of satellite positions to filter (default: None, uses last computed positions)
+        positions : list
+            List of satellite positions to filter
             
         Returns:
         --------
         list
             Filtered satellite positions
         """
-        if positions is None:
-            # Use the most recently computed positions or compute new ones
-            if not self.position_cache:
-                positions = self.compute_positions()
-            else:
-                # Use the most recent time from the cache
-                latest_time = sorted(self.position_cache.keys())[-1][0]
-                latest_filter = sorted(self.position_cache.keys())[-1][1]
-                positions = self.position_cache[(latest_time, latest_filter)]
             
         if target_ra < 0 or target_ra > 360 or target_dec < -90 or target_dec > 90:
             logger.error("Invalid RA/DEC values. RA should be between 0-360 degrees, DEC between -90° and 90°.")
@@ -338,36 +316,22 @@ class SatellitePlotter:
 
         return np.array([x, y, z])
 
-    def plot_equatorial(self, positions=None, filename=None):
+    def plot_equatorial(self, positions, filename=None):
         """
         Plot all satellites on a full-sky Mollweide projection.
         
         Parameters:
         -----------
-        positions : list, optional
-            List of satellite positions to plot (default: None, uses last computed positions)
-        filename : str
-            Output filename (default: "satellites_equatorial.png")
-            
+        positions : list
+            List of satellite positions
+        filename : str, optional
+            Output filename
+                        
         Returns:
         --------
-        matplotlib.figure.Figure
-            The figure object
         """
-        if positions is None:
-            # Use the most recently computed positions or compute new ones
-            if not self.position_cache:
-                positions = self.compute_positions()
-            else:
-                # Use the most recent time from the cache
-                latest_time = sorted(self.position_cache.keys())[-1][0]
-                latest_filter = sorted(self.position_cache.keys())[-1][1]
-                positions = self.position_cache[(latest_time, latest_filter)]
-        
+                
         logger.info(f"Plotting {len(positions)} satellites on equatorial projection")
-        
-        # Close any previous plots to prevent duplication in Jupyter
-        plt.close('all')
         
         # Create the figure with Mollweide projection
         fig = plt.figure(figsize=(10, 5))
@@ -378,7 +342,7 @@ class SatellitePlotter:
         ra_radians = np.radians(-np.array(ra_degrees))
         dec_radians = np.radians([sat["Dec"] for sat in positions])
         
-        scatter = ax.scatter(ra_radians, dec_radians, s=5, color='red', alpha=0.7)
+        ax.scatter(ra_radians, dec_radians, s=5, color='red', alpha=0.7)
         
         # Add RA/DEC labels
         ra_ticks_deg = [-180, -150, -120, -90, -60, -30, 0, 30, 60, 90, 120, 150]
@@ -389,25 +353,8 @@ class SatellitePlotter:
         ax.set_yticklabels(["-75°", "-45°", "-15°", "15°", "45°", "75°"])
         
         ax.grid(True, alpha=0.3)
-        
-        
-        # Determine title based on whether frequency filtering was applied
-        freq_info = ""
-        if positions and any(sat.get('frequency') for sat in positions):
-            # Filter out None values before finding min/max
-            valid_freqs = [sat.get('frequency') for sat in positions if sat.get('frequency') is not None]
-            if valid_freqs:
-                freq_min = min(valid_freqs)
-                freq_max = max(valid_freqs)
-                freq_info = f", {freq_min:.1f}-{freq_max:.1f} MHz"
-            # If frequency ranges were specified during initialization, use those instead
-            elif self.min_freq is not None and self.max_freq is not None:
-                freq_info = f", {self.min_freq}-{self.max_freq} MHz"
-    
-        title = f"Artificial Satellites in Equatorial Coordinates"
-#        title = f"Artificial Satellites in Equatorial Coordinates\n({len(positions)} satellites{freq_info})"
-        if self.current_time:
-            title += f"\nTime: {self.current_time.strftime('%Y-%m-%d %H:%M:%S')} UTC"
+                
+        title = f"Artificial Satellites in Equatorial Coordinates\n({len(positions)} satellites)"
             
         plt.title(title, fontsize=12)
 
@@ -415,10 +362,9 @@ class SatellitePlotter:
             plt.savefig(filename, dpi=300, bbox_inches='tight')
             logger.info(f"Figure saved as {filename}")
         
-        return fig
+        return
     
-    def plot_region_box(self, ra_min, ra_max, dec_min, dec_max, positions=None, 
-                      filename=None, highlight_satellites=None):
+    def plot_region_box(self, positions, ra_min, ra_max, dec_min, dec_max, filename=None):
         """
         Plot satellites in a rectangular region defined by RA/DEC boundaries.
         
@@ -432,31 +378,21 @@ class SatellitePlotter:
             Minimum Declination in degrees (-90 to 90)
         dec_max : float
             Maximum Declination in degrees (-90 to 90)
-        positions : list, optional
-            List of satellite positions to plot (default: None, filters by box)
+        positions : list
+            List of satellite positions
         filename : str, optional
             Output filename (default: generates name based on coordinates)
-        highlight_satellites : list, optional
-            List of NORAD IDs to highlight in a different color
             
         Returns:
         --------
-        matplotlib.figure.Figure
-            The figure object
         """
-        # Filter by box if no positions provided
-        if positions is None:
-            positions = self.filter_by_box(ra_min, ra_max, dec_min, dec_max)
-        
+        # Count only the satellites in the box even if more satellite positions are provided
+        positions = self.filter_by_box(positions, ra_min, ra_max, dec_min, dec_max)
+                
         if not positions:
             logger.warning(f"No satellites found in the region box: RA=[{ra_min}, {ra_max}], Dec=[{dec_min}, {dec_max}]")
             return None
-        
-        logger.info(f"Plotting {len(positions)} satellites in region box")
-        
-        # Close any previous plots to prevent duplication in Jupyter
-        plt.close('all')
-        
+                
         # Create figure with larger size for better readability
         fig, ax = plt.subplots(figsize=(12, 10))
         
@@ -500,15 +436,7 @@ class SatellitePlotter:
         ax.set_xlim(ra_min_plot, ra_max_plot)
         ax.set_ylim(dec_min - padding, dec_max + padding)
         
-        # Create colors based on highlighting
-        if highlight_satellites:
-            colors = ['red' if norad_id not in highlight_satellites else 'blue' 
-                     for norad_id in norad_ids]
-            # Add to legend
-            ax.scatter([], [], color='red', label='Standard satellites')
-            ax.scatter([], [], color='blue', label='Highlighted satellites')
-        else:
-            colors = ['red'] * len(ra_values)
+        colors = ['red'] * len(ra_values)
         
         # Plot satellites with slightly larger points
         scatter = ax.scatter(ra_values, dec_values, s=40, color=colors, alpha=0.7, 
@@ -564,9 +492,7 @@ class SatellitePlotter:
         ax.set_xlabel("Right Ascension (degrees)")
         ax.set_ylabel("Declination (degrees)")
         
-        title = f"Satellites in region: RA=[{ra_min:.1f}°, {ra_max:.1f}°], Dec=[{dec_min:.1f}°, {dec_max:.1f}°]"
-        if self.current_time:
-            title += f"\nTime: {self.current_time.strftime('%Y-%m-%d %H:%M:%S')} UTC"
+        title = f"Satellites in region: RA=[{ra_min:.1f}°, {ra_max:.1f}°], Dec=[{dec_min:.1f}°, {dec_max:.1f}°]\n"
         ax.set_title(title)
         
         # Add legend
@@ -593,10 +519,10 @@ class SatellitePlotter:
         
         plt.tight_layout()
         
-        return fig
+        return
     
-    def plot_region(self, target_ra, target_dec, region_size=10, positions=None, 
-                   filename=None, highlight_satellites=None):
+    def plot_region(self, positions, target_ra, target_dec, region_size=10,
+                   filename=None):
         """
         Plot satellites in a rectangular region around a target RA/DEC.
         
@@ -608,13 +534,11 @@ class SatellitePlotter:
             Target Declination in degrees
         region_size : float
             Half-width of the region in degrees (default: 10, making a 20×20 region)
-        positions : list, optional
-            List of satellite positions to plot (default: None, filters by target position)
+        positions : list, 
+            List of satellite positions
         filename : str, optional
             Output filename (default: generates name based on coordinates)
-        highlight_satellites : list, optional
-            List of NORAD IDs to highlight in a different color
-            
+    
         Returns:
         --------
         matplotlib.figure.Figure
@@ -633,118 +557,11 @@ class SatellitePlotter:
         # Cap declination values to valid range
         dec_min = max(dec_min, -90)
         dec_max = min(dec_max, 90)
-        
-        # Filter positions by target if none provided
-        if positions is None:
-            positions = self.filter_by_position(target_ra, target_dec, radius_deg=region_size)
-        
+                
         # Use the box plotting function with the cross marker for the target
-        fig = self.plot_region_box(ra_min, ra_max, dec_min, dec_max, positions, 
-                                filename, highlight_satellites)
-        
-        if fig is not None:
-            # Add target marker
-            ax = fig.gca()
-            ax.plot(target_ra, target_dec, 'bx', markersize=12, label="Target", zorder=4)
-            ax.legend(loc='upper right')
-        
-        return fig
+        self.plot_region_box(positions, ra_min, ra_max, dec_min, dec_max, filename)
+                
+        return
     
-    def initialize(self, time=None, frequency_filter=None, url="https://celestrak.org/NORAD/elements/gp.php?GROUP=active&FORMAT=tle"):
-        """
-        Initialize the plotter by fetching all necessary data and computing positions.
-        
-        Parameters:
-        -----------
-        time : datetime, optional
-            Time for position calculation (default: current UTC time)
-        frequency_filter : bool, optional
-            Whether to apply frequency filtering (default: None, uses instance setting)
-            
-        Returns:
-        --------
-        self
-            The plotter instance for method chaining
-        """
-        # Fetch satellite data
-        self.fetch_satnogs_catalog()
-        self.fetch_tle_data(url)
-        
-        # Determine whether to apply frequency filtering
-        apply_filter = frequency_filter
-        if apply_filter is None:
-            # Use instance setting if not explicitly specified
-            apply_filter = (self.min_freq is not None and self.max_freq is not None)
-        
-        # Compute positions
-        self.compute_positions(time=time, frequency_filter=apply_filter)
-        
-        return self
-
-# Function to create an example Jupyter notebook usage
-def create_example_notebook():
-    """Create a string with example code for using the module in a Jupyter notebook."""
-    example = '''
-# Example usage of SatellitePlotter in Jupyter notebook
-
-from satellite_plotter import SatellitePlotter
-import pandas as pd
-from datetime import datetime, timedelta, timezone
-from IPython.display import display
-
-# Create the plotter instance
-# If you want to filter by frequency, specify min_freq and max_freq
-plotter = SatellitePlotter(min_freq=300, max_freq=2000)
-
-# Initialize with all necessary data
-plotter.initialize()
-
-# To compute positions for a future time
-future_time = datetime.now(timezone.utc) + timedelta(hours=24)
-future_positions = plotter.compute_positions(time=future_time)
-
-# Plot the full sky
-plotter.plot_equatorial()
-
-# Plot a region around a target (Orion's Belt area)
-target_ra = 83.8
-target_dec = -5.4
-region_size = 10
-plotter.plot_region(target_ra, target_dec, region_size)
-
-# Plot a specific box region
-ra_min, ra_max = 75.0, 95.0
-dec_min, dec_max = -15.0, 5.0
-plotter.plot_region_box(ra_min, ra_max, dec_min, dec_max)
-
-# Get detailed satellite information as a DataFrame
-box_satellites = plotter.filter_by_box(ra_min, ra_max, dec_min, dec_max)
-df = pd.DataFrame(box_satellites)
-display(df)
-
-# To include/exclude frequency filtering
-all_positions = plotter.compute_positions(frequency_filter=False)
-filtered_positions = plotter.compute_positions(frequency_filter=True)
-
-# Plot with frequency filtering
-plotter.plot_equatorial(positions=filtered_positions)
-
-# Plot without frequency filtering (all satellites)
-plotter.plot_equatorial(positions=all_positions)
-
-# Show satellite positions at different times
-current_time = datetime.now(timezone.utc)
-tomorrow = current_time + timedelta(days=1)
-next_week = current_time + timedelta(days=7)
-
-current_positions = plotter.compute_positions(time=current_time)
-tomorrow_positions = plotter.compute_positions(time=tomorrow)
-next_week_positions = plotter.compute_positions(time=next_week)
-
-# Plot satellite movement over time
-plotter.plot_region_box(ra_min, ra_max, dec_min, dec_max, positions=current_positions)
-plotter.plot_region_box(ra_min, ra_max, dec_min, dec_max, positions=tomorrow_positions)
-plotter.plot_region_box(ra_min, ra_max, dec_min, dec_max, positions=next_week_positions)
-'''
-    return example
-
+    
+    
