@@ -6,3 +6,4 @@ build/*
 figs/*
 output/*
 tests/*
+scripts/plots/*

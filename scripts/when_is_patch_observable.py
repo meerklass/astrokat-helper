@@ -8,7 +8,7 @@ import ephem
 from datetime import datetime, timedelta
 from astropy.coordinates import SkyCoord
 from astropy import units
-from scripts.yaml_offseter import get_coordinate_strings
+from yaml_offseter import get_coordinate_strings
 import argparse
 from typing import Optional
 from matplotlib import pyplot as plt
