@@ -43,7 +43,7 @@ args = cli.parse_args()
 location = astrokat.Observatory().location
 ref_antenna = katpoint.Antenna(location)
 
-plt.figure(figsize=(20, 5))
+plt.figure()
 
 for file_name in args.files:
     radec_p = []
@@ -99,5 +99,6 @@ for file_name in args.files:
     #plt.plot([ramin,ramax],[decmax,decmax])
     #plt.plot([ramax,ramax],[decmin,decmax])
 
+plt.gca().set_aspect('equal', adjustable='box')
 plt.savefig(args.plot[0]+'.png')
 plt.close() 

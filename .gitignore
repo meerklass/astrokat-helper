@@ -3,7 +3,5 @@
 astrokat_helper.egg-info/*
 __*
 build/*
-figs/*
-output/*
-tests/*
-scripts/plots/*
+outputs/*
+tests

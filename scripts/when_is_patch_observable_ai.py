@@ -11,7 +11,8 @@ import argparse
 from typing import Optional, List, Tuple, Any, Union
 import logging
 from matplotlib import pyplot as plt
-import functools
+import yaml
+import sys
 
 
 # Configure logging
@@ -36,7 +37,9 @@ class WhenIsPatchObservable:
                  days_from_now: int = 365,
                  time_res: float = 10,  # in sec
                  plot_dir: str | None = None,
-                 csv_output: bool = False):
+                 csv_output: bool = False,
+                 moon_buffer_ra: float = 0.0,  # degrees on either side of RA range
+                 moon_buffer_dec: float = 0.0):  # degrees above/below Dec range
         """
         Initialise
         :param point_list: `list` of `str` point coordinates (hourangle). must have length 4
@@ -47,6 +50,8 @@ class WhenIsPatchObservable:
         :param days_from_now: number of days to consider starting from `from_date`
         :param plot_dir: directory to store plots, if `None`, they are not created
         :param csv_output: whether to output in CSV format for spreadsheet import
+        :param moon_buffer_ra: buffer in degrees on either side of RA range for moon detection
+        :param moon_buffer_dec: buffer in degrees above/below Dec range for moon detection
         :raises ValueError: if arguments are invalid
         """
         # Validate buffer is non-negative
@@ -93,10 +98,21 @@ class WhenIsPatchObservable:
         self.plot_dir = plot_dir
         self.csv_output = csv_output
         
-        # Validate plot_dir exists if provided
-        if plot_dir is not None and not os.path.isdir(plot_dir):
-            raise ValueError(f"Plot directory '{plot_dir}' does not exist")
-
+        # Store moon buffer values
+        self.moon_buffer_ra = moon_buffer_ra
+        self.moon_buffer_dec = moon_buffer_dec
+        
+        # Create plot_dir if it doesn't exist
+        if plot_dir is not None:
+            if not os.path.exists(plot_dir):
+                try:
+                    os.makedirs(plot_dir)
+                    logger.info(f"Created plot directory: {plot_dir}")
+                except OSError as e:
+                    raise ValueError(f"Failed to create plot directory '{plot_dir}': {e}")
+            elif not os.path.isdir(plot_dir):
+                raise ValueError(f"'{plot_dir}' exists but is not a directory")
+            
     def print(self):
         """Print detailed information about the patch and observation parameters."""
         # Calculate center RA/Dec of the patch
@@ -125,7 +141,7 @@ class WhenIsPatchObservable:
         print(f"End Date: {(self.from_date + timedelta(days=self.days_from_now-1)).strftime('%Y-%m-%d')}")
         print(f"Sun Threshold (buffer): {self.sun_threshold} minutes after sunset/before sunrise")
         print(f"Elevation Range: {self.min_elevation}° to {self.max_elevation}°")
-#        print(f"Time Resolution: {self.time_res} seconds")
+        print(f"Moon Detection Buffer: RA = ±{self.moon_buffer_ra}°, Dec = ±{self.moon_buffer_dec}°")
         
         if self.plot_dir:
             print(f"Plotting Enabled: Yes (saving to '{self.plot_dir}')")
@@ -135,8 +151,7 @@ class WhenIsPatchObservable:
         print(f"Output Format: {'CSV' if self.csv_output else 'Formatted Text'}")
         print("=" * 50)
         print("")  # Empty line before results
-        
-        
+
     @staticmethod
     def get_point_list(point_list: List[float]) -> List[str]:
         """
@@ -314,7 +329,7 @@ class WhenIsPatchObservable:
         elevation_list = np.asarray(elevation_list)
         return elevation_list 
     
-    def get_lst(self, observer: ephem.Observer, date: datetime) -> ephem.Angle:
+    def get_lst(self, observer: Any, date: datetime) -> Any:
         """
         Returns lst in hour:min:sec pyephem format.
         
@@ -332,7 +347,7 @@ class WhenIsPatchObservable:
     
     def is_moon_in_patch(self, start_time: datetime, end_time: datetime) -> bool:
         """
-        Check if the moon is within the patch of sky during the observation window.
+        Check if the moon is within the patch of sky (plus buffer) during the observation window.
         
         :param start_time: Start time of the observation window
         :param end_time: End time of the observation window
@@ -341,11 +356,17 @@ class WhenIsPatchObservable:
         if start_time is None or end_time is None:
             return False
             
-        # Extract the RA/Dec bounds from corners
+        # Extract the RA/Dec bounds from corners and apply buffers
         ra_min, ra_max, dec_min, dec_max = self.corners
         
-        # Number of points to check (every 10 minutes)
-        time_delta = timedelta(minutes=10)
+        # Apply buffers to the boundaries
+        ra_min_buffered = max(0, ra_min - self.moon_buffer_ra)
+        ra_max_buffered = min(360, ra_max + self.moon_buffer_ra)
+        dec_min_buffered = max(-90, dec_min - self.moon_buffer_dec)
+        dec_max_buffered = min(90, dec_max + self.moon_buffer_dec)
+        
+        # Number of points to check (every 20 minutes)
+        time_delta = timedelta(minutes=20)
         
         # Create moon object
         moon = ephem.Moon()
@@ -367,20 +388,20 @@ class WhenIsPatchObservable:
                 # Restore observer date
                 observer.date = date_backup
                 
-                # Check if moon is within the patch bounds
+                # Check if moon is within the buffered patch bounds
                 # Handle RA wrap-around (0/360 degrees)
                 in_ra_range = False
-                if ra_min < ra_max:
+                if ra_min_buffered < ra_max_buffered:
                     # Normal case
-                    in_ra_range = ra_min <= moon_ra <= ra_max
+                    in_ra_range = ra_min_buffered <= moon_ra <= ra_max_buffered
                 else:
                     # RA wraps around 0/360
-                    in_ra_range = moon_ra >= ra_min or moon_ra <= ra_max
+                    in_ra_range = moon_ra >= ra_min_buffered or moon_ra <= ra_max_buffered
                     
-                in_dec_range = dec_min <= moon_dec <= dec_max
+                in_dec_range = dec_min_buffered <= moon_dec <= dec_max_buffered
                 
                 if in_ra_range and in_dec_range:
-                    logger.info(f"Moon in patch at {current_time} (RA: {moon_ra:.2f}°, Dec: {moon_dec:.2f}°)")
+                    logger.info(f"Moon in patch (with buffer) at {current_time} (RA: {moon_ra:.2f}°, Dec: {moon_dec:.2f}°)")
                     return True
                     
             except Exception as e:
@@ -452,9 +473,8 @@ class WhenIsPatchObservable:
         target_body_list = self.target_body_list()
         patch_observed = False
         
-        # Calculate elevation resolution
+        # Calculate elevation resolution without logging it
         el_res = self._calculate_elevation_resolution()
-#        logger.info(f"Using elevation resolution of {el_res} degrees")
         
         # Print header for results
         self.print_header()
@@ -746,40 +766,81 @@ class WhenIsPatchObservable:
             # Always restore the observer's date, even if an exception occurs
             observer.date = date_backup
 
-
-def main():
-    """ Run the `run` method with arguments from the command line. """
+def load_yaml_config(config_path):
+    """
+    Load configuration from a YAML file.
     
-    logger.info("Starting patch observability calculation")
+    Args:
+        config_path (str): Path to the YAML configuration file
+        
+    Returns:
+        dict: Configuration parameters
+        
+    Raises:
+        FileNotFoundError: If the config file doesn't exist
+        yaml.YAMLError: If the YAML file is invalid
+    """
+    try:
+        with open(config_path, 'r') as file:
+            config = yaml.safe_load(file)
+            logger.info(f"Loaded configuration from {config_path}")
+            return config
+    except FileNotFoundError:
+        logger.error(f"Configuration file '{config_path}' not found")
+        raise
+    except yaml.YAMLError as e:
+        logger.error(f"Error parsing YAML configuration file: {e}")
+        raise
 
+def get_config_from_args():
+    """
+    Parse command line arguments and load configuration from YAML if specified.
+    
+    Command line arguments override configuration file values.
+    
+    Returns:
+        dict: Complete configuration parameters
+    """
     cli = argparse.ArgumentParser(
         description="Calculate when a patch of sky is observable based on elevation constraints.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  # Check when a patch is observable over the next 30 days with default elevations
-  python when_is_patch_observable.py --corners 10 20 -30 -20 --buffer 30 --days 30
-  
-  # Check for a specific date with custom elevation constraints
-  python when_is_patch_observable.py --corners 120.5 125.5 -45.3 -42.1 --buffer 45 --date 2023-06-21 --min_elevation 30 --max_elevation 60
-  
-  # Generate plots in addition to console output
-  python when_is_patch_observable.py --corners 230 240 10 20 --buffer 30 --plot_dir ./elevation_plots
-  
-  # Enable detailed logging
-  python when_is_patch_observable.py --corners 230 240 10 20 --buffer 30 --verbose
-  
-  # Output in CSV format for spreadsheet import
-  python when_is_patch_observable.py --corners 230 240 10 20 --buffer 30 --csv > results.csv
+# Check when a patch is observable using a YAML config file
+python when_is_patch_observable_ai.py --config observation_config.yaml
+
+# Override specific config values from command line
+python when_is_patch_observable_ai.py --config observation_config.yaml --min_elevation 30 --max_elevation 60
+
+# Use command line arguments without a config file (original mode)
+python when_is_patch_observable_ai.py --corners 10 20 -30 -20 --buffer 30 --days 30
+
+# Generate plots in addition to console output
+python when_is_patch_observable_ai.py --corners 230 240 10 20 --buffer 30 --plot_dir ./elevation_plots
+
+# Enable detailed logging
+python when_is_patch_observable_ai.py --config observation_config.yaml --verbose
+
+# Output in CSV format for spreadsheet import
+python when_is_patch_observable_ai.py --config observation_config.yaml --csv > results.csv
         """
     )
     
+    # Add config file argument
+    cli.add_argument(
+        "--config",
+        type=str,
+        help='path to YAML configuration file',
+        required=False
+    )
+    
+    # Keep all existing arguments
     cli.add_argument(
         "--corners",
-        nargs=4,  # 4 more values expected => creates a list
+        nargs=4,
         type=float,
         help='provide right ascension min, max and declination min, max values as degree floats',
-        required=False  # Changed to False to allow showing help without required args
+        required=False
     )
     cli.add_argument(
         "--date",
@@ -793,28 +854,28 @@ Examples:
         nargs=1,
         type=int,
         help='provide integer buffer from sunrise and sunset in minutes',
-        required=False  # Changed to False to allow showing help without required args
+        required=False
     )
     cli.add_argument(
         "--min_elevation",
         nargs=1,
         type=float,
         help='provide min elevation in degrees',
-        default=[35]
+        default=None
     )
     cli.add_argument(
         "--max_elevation",
         nargs=1,
         type=float,
         help='provide max elevation in degrees',
-        default=[50]
+        default=None
     )
     cli.add_argument(
         "--days",
         nargs=1,
         type=int,
         help='provide number of days from input date to consider',
-        default=[366]
+        default=None
     )
     cli.add_argument(
         "--plot_dir",
@@ -833,44 +894,190 @@ Examples:
         action="store_true",
         help='output in CSV format for easy import into spreadsheets',
     )
+    cli.add_argument(
+        "--moon-buffer-ra",
+        type=float,
+        help='buffer in degrees on either side of RA range for moon detection',
+        default=None
+    )
+    cli.add_argument(
+        "--moon-buffer-dec",
+        type=float,
+        help='buffer in degrees above/below Dec range for moon detection',
+        default=None
+    )
+    cli.add_argument(
+        "--time-res",
+        type=float,
+        help='time resolution in seconds for elevation calculations',
+        default=None
+    )
     
     # Parse arguments
     args = cli.parse_args()
     
-    # Display help text if required arguments are missing
-    if args.corners is None or args.buffer is None:
-        print("\nError: The --corners and --buffer arguments are required.")
-        print("Here's how to use this script:\n")
-        cli.print_help()
-        return
+    # Set up default configuration
+    config = {
+        'corners': None,
+        'date': None,
+        'buffer': None,
+        'min_elevation': 35,
+        'max_elevation': 50,
+        'days': 366,
+        'plot_dir': None,
+        'verbose': False,
+        'csv': False,
+        'moon_buffer_ra': 0.0,
+        'moon_buffer_dec': 0.0,
+        'time_res': 10
+    }
     
+    # Load from config file if provided
+    if args.config:
+        try:
+            file_config = load_yaml_config(args.config)
+            
+            # Map YAML keys to config dictionary
+            # Handle special case for corners which is a list
+            if 'ra_min' in file_config and 'ra_max' in file_config and 'dec_min' in file_config and 'dec_max' in file_config:
+                config['corners'] = [
+                    file_config['ra_min'],
+                    file_config['ra_max'],
+                    file_config['dec_min'],
+                    file_config['dec_max']
+                ]
+            
+            # Handle date
+            if 'start_date' in file_config:
+                config['date'] = file_config['start_date']
+            
+            # Handle days
+            if 'days' in file_config:
+                config['days'] = file_config['days']
+            elif 'end_date' in file_config and config['date']:
+                # Calculate days from start_date to end_date
+                from datetime import datetime
+                start = datetime.strptime(config['date'], '%Y-%m-%d')
+                end = datetime.strptime(file_config['end_date'], '%Y-%m-%d')
+                config['days'] = (end - start).days + 1
+            
+            # Map other parameters directly
+            mapping = {
+                'buffer': 'sunset_buffer',  # or sunrise_buffer
+                'min_elevation': 'min_elevation',
+                'max_elevation': 'max_elevation',
+                'plot_dir': 'plot_dir',
+                'verbose': 'verbose',
+                'csv': 'csv_output',
+                'moon_buffer_ra': 'moon_buffer_ra',
+                'moon_buffer_dec': 'moon_buffer_dec',
+                'time_res': 'time_res'
+            }
+            
+            for config_key, yaml_key in mapping.items():
+                if yaml_key in file_config:
+                    config[config_key] = file_config[yaml_key]
+                    
+            # Handle special case for buffer (can be either sunrise_buffer or sunset_buffer)
+            if 'sunrise_buffer' in file_config and 'sunset_buffer' in file_config:
+                # Use the average if both are specified
+                config['buffer'] = (file_config['sunrise_buffer'] + file_config['sunset_buffer']) // 2
+            elif 'sunrise_buffer' in file_config:
+                config['buffer'] = file_config['sunrise_buffer']
+            elif 'sunset_buffer' in file_config:
+                config['buffer'] = file_config['sunset_buffer']
+                
+        except (FileNotFoundError, yaml.YAMLError) as e:
+            print(f"Error with configuration file: {e}")
+            sys.exit(1)
+    
+    # Command line arguments override config file values
     if args.verbose:
+        config['verbose'] = True
         logger.setLevel(logging.DEBUG)
         logger.debug("Debug logging enabled")
+        
+    if args.csv:
+        config['csv'] = True
+        
+    if args.corners:
+        config['corners'] = args.corners
+        
+    if args.date:
+        config['date'] = args.date[0]
+        
+    if args.buffer:
+        config['buffer'] = args.buffer[0]
+        
+    if args.min_elevation:
+        config['min_elevation'] = args.min_elevation[0]
+        
+    if args.max_elevation:
+        config['max_elevation'] = args.max_elevation[0]
+        
+    if args.days:
+        config['days'] = args.days[0]
+        
+    if args.plot_dir:
+        config['plot_dir'] = args.plot_dir[0]
+        
+    if args.moon_buffer_ra is not None:
+        config['moon_buffer_ra'] = args.moon_buffer_ra
+        
+    if args.moon_buffer_dec is not None:
+        config['moon_buffer_dec'] = args.moon_buffer_dec
+        
+    if args.time_res is not None:
+        config['time_res'] = args.time_res
+    
+    # Validate required parameters
+    if config['corners'] is None:
+        if args.config:
+            print(f"Error: The 'corners' parameter (or ra_min, ra_max, dec_min, dec_max) must be specified in the config file or with --corners")
+        else:
+            print("\nError: The --corners argument is required unless using a config file.")
+        print("Here's how to use this script:\n")
+        cli.print_help()
+        sys.exit(1)
+        
+    if config['buffer'] is None:
+        if args.config:
+            print(f"Error: The 'buffer' parameter (or sunset_buffer/sunrise_buffer) must be specified in the config file or with --buffer")
+        else:
+            print("\nError: The --buffer argument is required unless using a config file.")
+        print("Here's how to use this script:\n")
+        cli.print_help()
+        sys.exit(1)
+    
+    return config
 
-    if args.date is None:
-        from_date = None
-    else:
-        from_date = args.date[0]
-        
-    if args.plot_dir is None:
-        plot_dir = None
-    else:
-        plot_dir = args.plot_dir[0]
-        
+
+def main():
+    """ Run the `run` method with arguments from the command line or config file. """
+    
+    logger.info("Starting patch observability calculation")
+
+    # Get configuration from arguments and/or config file
+    config = get_config_from_args()
+    
+    # Create the WhenIsPatchObservable instance
     when_is_patch_observable = WhenIsPatchObservable(
-        point_list=args.corners,
-        from_date=from_date,
-        buffer=args.buffer[0],
-        min_elevation=args.min_elevation[0],
-        max_elevation=args.max_elevation[0],
-        days_from_now=args.days[0],
-        plot_dir=plot_dir,
-        csv_output=args.csv
+        point_list=config['corners'],
+        from_date=config['date'],
+        buffer=config['buffer'],
+        min_elevation=config['min_elevation'],
+        max_elevation=config['max_elevation'],
+        days_from_now=config['days'],
+        plot_dir=config['plot_dir'],
+        csv_output=config['csv'],
+        moon_buffer_ra=config['moon_buffer_ra'],
+        moon_buffer_dec=config['moon_buffer_dec'],
+        time_res=config['time_res']
     )
+    
+    # Run the calculation
     when_is_patch_observable.print()
     when_is_patch_observable.run()
-
-
+    
 if __name__ == '__main__':
     main()
