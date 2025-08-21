@@ -3,3 +3,5 @@
 astrokat_helper.egg-info/*
 __*
 build/*
+outputs/*
+tests

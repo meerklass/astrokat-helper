@@ -1,0 +1,28 @@
+# Patch Sky Coordinates (in degrees)
+ra_min: 211.0
+ra_max: 228.0
+dec_min: -8.0
+dec_max: 5.5
+
+# Observer Parameters
+# Buffer times in minutes from sunrise/sunset
+sunrise_buffer: 30
+sunset_buffer: 30
+
+# Date Range
+start_date: "2025-04-07"  # Format: YYYY-MM-DD
+end_date: "2025-10-15"    # Alternative to specifying 'days'
+# days: 30                # Number of days to check (uncomment to use instead of end_date)
+
+# Elevation Constraints (degrees)
+min_elevation: 30.0
+max_elevation: 45.0
+
+# Moon Avoidance Parameters (degrees)
+moon_buffer_ra: 5.0    # Buffer on either side of RA range
+moon_buffer_dec: 7.0   # Buffer above/below Dec range
+
+# Output Settings
+plot_dir: "./elevation_plots"   # Directory for elevation plots (set to null to disable)
+csv_output: false               # Set to true for CSV format
+verbose: false                  # Set to true for debug logging
